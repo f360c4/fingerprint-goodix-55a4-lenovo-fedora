@@ -1,177 +1,134 @@
-# Plano — Goodix 27c6:55a4 no Fedora (ThinkPad E14 Gen 1 / 20RA)
+# Plano — Goodix 27c6:55a4 no Fedora (ThinkPad E14 Gen 1 / 20RB002BBR)
 
-Fases 0–3 não escrevem nada no sensor. A Fase 4 é a única com risco de brick e só começa
-com `FLASH AUTORIZADO`. Cada fase termina com uma entrada em `NOTES.md` e um commit.
+Revisado em 2026-10-08 depois da Fase 1. Mudança central: **o sensor já está no firmware
+10062** (o que o driver do jith exige) e **só a PSK está errada** (é a do Windows). Não há
+flash de firmware no plano. A única escrita no sensor é **um comando de PSK** (Fase 4), que
+continua exigindo `FLASH AUTORIZADO`. Cada fase termina com entrada em `NOTES.md` e commit.
 
----
-
-## Fase 0 — Base (sem risco)
-
-Objetivo: ambiente pronto, fontes clonadas, inventário da máquina.
-
-```bash
-# identidade da máquina
-cat /sys/class/dmi/id/product_name /sys/class/dmi/id/product_version /sys/class/dmi/id/bios_version
-rpm -E %fedora; uname -r
-lsusb -d 27c6:55a4
-sudo lsusb -v -d 27c6:55a4 > logs/lsusb-v.txt
-rpm -q libfprint fprintd fprintd-pam opencv
-
-# ferramentas
-sudo dnf install -y git usbutils wireshark-cli meson ninja-build gcc gcc-c++ pkgconf \
-  glib2-devel libgusb-devel openssl-devel pixman-devel nss-devel libgudev-devel \
-  opencv-devel gtk-doc gobject-introspection-devel doctest-devel \
-  python3 python3-devel rpm-build rpmdevtools dnf-plugins-core fprintd fprintd-pam
-# versionlock: dnf4 -> python3-dnf-plugin-versionlock ; dnf5 -> dnf5-plugins
-sudo dnf install -y python3-dnf-plugin-versionlock || sudo dnf install -y dnf5-plugins
-
-# fontes (como submódulos ou clones em vendor/)
-mkdir -p vendor logs dumps tools rpm
-git clone https://github.com/jith/goodix-55a4-fingerprint vendor/jith-55a4
-git clone --recurse-submodules https://github.com/goodix-fp-linux-dev/goodix-fp-dump vendor/goodix-fp-dump
-git clone -b 55b4-experimental https://github.com/TheWeirdDev/libfprint vendor/libfprint-55b4
-```
-
-Pronto quando:
-- [ ] `product_name` começa com `20RA` (se não, registrar o modelo real e reavaliar)
-- [ ] `lsusb` mostra `27c6:55a4`
-- [ ] três repositórios clonados, `vendor/` no `.gitignore` ou como submódulo
-- [ ] NOTES.md tem: modelo, BIOS, Fedora, kernel, versões de libfprint/fprintd/opencv
+Histórico detalhado e evidências: `NOTES.md`.
 
 ---
 
-## Fase 1 — Reconhecimento (sem risco)
+## Fase 0 — Base ✅ (2026-10-08)
 
-Objetivo: saber exatamente o estado do sensor sem escrever nele.
+Máquina `20RB002BBR` (E14 Gen 1, BIOS R16ET30W 1.16), Fedora 44, kernel 7.2.8, libfprint
+1.94.100, fprintd 1.94.5, OpenSSL 3.5.9. Repos em `vendor/` (gitignored):
+goodix-fp-dump `cc43bb3`, jith-55a4 `e8ee5bc`, libfprint-55b4 `c1937b9`. Venv em `.venv/`.
 
-1. **Auditar o goodix-fp-dump** (`goodix.py`, `protocol.py`, `driver_55x4.py`, `run_55b4.py`,
-   `flash-tool/`): listar em `NOTES.md` cada função que **escreve** no sensor (firmware,
-   PSK, IAP, erase, reset de config) e cada função de **leitura** (firmware version,
-   MCU info, OTP, PSK hash/check, config). Não rodar `run_*.py` inteiro.
-2. Escrever `tools/probe_readonly.py` usando só as funções de leitura:
-   - versão de firmware (esperado: `GF3208_RTSEC_APP_10039`)
-   - info do MCU / bootloader (esperado: `MILAN_RTSEC_IAP_10027`)
-   - OTP (calibração: tcode, FDT delta/offset)
-   - se o protocolo permitir checar a PSK sem escrever: fazer, e registrar que a PSK
-     toda-zero **não** é aceita (confirma que estamos pareados com Windows)
-   - salvar tudo em `dumps/probe-YYYYMMDD.json`
-   - precisa parar o `fprintd` antes (`sudo systemctl stop fprintd`) e rodar como root ou
-     com regra udev
-3. **Captura USB do fprintd de estoque** (controle): `sudo modprobe usbmon`, descobrir o
-   barramento do sensor, `sudo tshark -i usbmonN -w dumps/stock-fprintd.pcapng` enquanto
-   roda `fprintd-list $USER` e `fprintd-verify`. Serve de baseline do que o Linux manda hoje.
-4. Verificar se o sensor **re-enumera após suspend** (relatado pelo jith) — anotar.
+## Fase 1 — Reconhecimento ✅ (2026-10-08)
 
-Pronto quando:
-- [ ] `NOTES.md` tem a tabela leitura/escrita do goodix-fp-dump
-- [ ] `dumps/probe-*.json` com firmware, bootloader e OTP
-- [ ] sabemos se o firmware é 10039 (caminho não testado) ou outro
+`tools/probe_readonly.py` (whitelist 0x00/0xa8/0xf6/0xe4/0xa6, captura usbmon confirma) leu:
+
+| | Lido |
+|---|---|
+| Firmware | **`GF3268_RTSEC_APP_10062`** (universal Lenovo; não é o 10039 de fábrica) |
+| Bootloader | `MILAN_RTSEC_IAP_10027` |
+| PSK | hash `4e2f7244…e10c` ≠ PSK zero → **pareado pelo Windows** (máquina veio usada com Windows) |
+| OTP | tcode `0xd0`, FDT delta `0x17`, FDT offset 0, calibração válida |
+
+Precedentes achados na pesquisa (detalhe em NOTES.md):
+- **jith/goodix-55a4-fingerprint#1**: 55a4, firmware 10052 pareado pelo Windows, gravou só a
+  PSK (`preset_psk_write(0xbb010003, PSK_WHITE_BOX)`) com a app rodando, sem erase/flash/reset;
+  driver do jith funcionou. É o nosso caso, com firmware ainda melhor (10062).
+- **TheWeirdDev/libfprint#3**: 55b4, 10056 Windows-paired, mesma gravação, funcionou. Revela
+  (a) `goodix_send_preset_psk_write` do fork é **bugada** (PSK truncada) — nunca gravar pelo
+  libfprint; (b) `"ALL"` como cipher list quebra TLS-PSK no OpenSSL 3 → fix `"PSK:@SECLEVEL=0"`.
 
 ---
 
 ## Fase 2 — Pipeline do driver (sem risco)
 
-Objetivo: libfprint patcheado instalado como RPM, driver reconhecendo o device e parando
-em `Invalid device PSK`. Prova que tudo funciona até a camada TLS.
+Objetivo: libfprint patcheado instalado como RPM, driver lendo `GF3268_RTSEC_APP_10062` e
+parando em `Invalid device PSK`. Com o firmware certo, essa deve ser a **única** barreira.
 
-1. Montar a árvore de build a partir de `vendor/jith-55a4/driver/`:
-   snapshot `upstream/*.tar.xz` (commit `c1937b9` do fork) + `patches/0001..0011`.
-   Conferir se os patches aplicam limpo (`patch -Np1 --dry-run`).
-2. `rpm/libfprint-goodixtls-55a4.spec`:
-   - `Name: libfprint-goodixtls-55a4`, `Version: 1.94.6`, `Release: 0.<n>.c1937b9%{?dist}`
-   - `Provides: libfprint = %{version}-%{release}`, `Conflicts: libfprint`
-   - build com meson, `-D doc=false`, sem instalar nada além de `libfprint-2.so*`,
-     headers, typelib e as regras udev que o pacote original já entrega
-   - checar se o Fedora precisa do pacote `libfprint-devel` separado (provavelmente não)
-3. `rpmbuild -ba` (ou `mock -r fedora-$(rpm -E %fedora)-x86_64` pra build limpo).
-4. Instalar: `sudo dnf swap libfprint libfprint-goodixtls-55a4-*.rpm`,
-   `sudo dnf versionlock add libfprint-goodixtls-55a4`, `sudo systemctl restart fprintd`.
-5. Teste: `fprintd-verify` e `journalctl -u fprintd -b`. Esperado: driver `goodixtls`
-   carrega, lê `Device firmware: "GF3208_RTSEC_APP_10039"`, falha em `Invalid device PSK`
-   ou `Invalid device firmware`. Guardar o log em `logs/phase2-fprintd.log`.
-6. Confirmar que `sudo` e login continuam só por senha (nada de PAM ainda).
+1. Árvore de build: `vendor/jith-55a4/driver/upstream/libfprint-…-c1937b9.tar.xz` +
+   `patches/0001, 0002, 0008, 0010, 0011` (são só esses cinco). `patch -Np1 --dry-run` em cada.
+2. Conferir que nenhum patch adiciona chamada a `goodix_send_preset_psk_write` (grep). O
+   driver instalado **não pode** escrever PSK.
+3. Patch nosso `0012-goodixtls-openssl3-psk-seclevel.patch`: trocar `"ALL"` por
+   `"PSK:@SECLEVEL=0"` em `goodixtls.c` (duas ocorrências), **[HIPÓTESE]** necessário no
+   Fedora por causa do crypto-policies `@SECLEVEL=2`. Decidir após o primeiro teste na Fase 4:
+   se o handshake falhar com PSK correta, aplicar. Pode ser incluído já na Fase 2 se o build
+   permitir testar o caminho TLS em isolamento (ex.: teste unitário com `openssl s_client`).
+4. `rpm/libfprint-goodixtls-55a4.spec`: `Name: libfprint-goodixtls-55a4`, `Version: 1.94.6`,
+   `Release: 0.<n>.c1937b9%{?dist}`, `Provides: libfprint = %{version}-%{release}`,
+   `Conflicts: libfprint`; meson `-D doc=false`; entrega `libfprint-2.so*`, headers, typelib,
+   udev rules. Checar dependência `opencv-devel` (sigfm) e se `libfprint-devel` precisa de
+   `Provides` também.
+5. `rpmbuild -ba` (ou `mock -r fedora-44-x86_64`). Script `rpm/build.sh`.
+6. Instalar: `sudo dnf swap libfprint libfprint-goodixtls-55a4-*.rpm`;
+   `sudo dnf versionlock add libfprint-goodixtls-55a4`; `sudo systemctl restart fprintd`.
+7. Teste: `fprintd-verify` + `journalctl -u fprintd -b` → `logs/phase2-fprintd.log`. Esperado:
+   `Device firmware: "GF3268_RTSEC_APP_10062"` e `Invalid device PSK: 0x4e2f…`.
+8. Confirmar que sudo e login seguem só por senha.
 
 Pronto quando:
-- [ ] RPM builda reproduzivelmente a partir do repo
-- [ ] `dnf versionlock` ativo; `dnf upgrade --refresh` não tenta trocar o libfprint
-- [ ] log mostra o driver chegando na fase TLS e falhando pela PSK (não antes)
-- [ ] `rpm/` commitado com spec + script `build.sh`
+- [ ] RPM builda reproduzivelmente a partir do repo (`rpm/` commitado)
+- [ ] versionlock ativo; `dnf upgrade --refresh` não troca o libfprint
+- [ ] log mostra firmware 10062 e falha **somente** em `Invalid device PSK`
 
 ---
 
-## Fase 3 — Investigação da PSK (sem risco de brick)
+## Fase 3 — Preparação da gravação da PSK (sem escrita)
 
-Objetivo: responder se existe caminho **sem flash** ou, pelo menos, reduzir o risco do flash.
-Tudo aqui é pesquisa; registrar hipóteses como hipóteses.
+Objetivo: ferramenta auditada e dossiê, pra Fase 4 ser um passo único e curto.
 
-Hipóteses a testar, em ordem de custo:
-
-**H1 — Gravar só a PSK no firmware de fábrica.** No `flash-tool` do goodix-fp-dump, a
-gravação da PSK é um comando separado do upload do firmware? Se sim, dá pra escrever a PSK
-toda-zero no 10039 sem erase/IAP? (É escrita no sensor → mesmo assim só com
-`FLASH AUTORIZADO`, mas o risco é muito menor que trocar o app.) O driver do jith aceita
-`GF32xx_RTSEC_APP_100xx` — então 10039 + PSK Linux pode até rodar o fluxo de captura.
-Analisar o código; não executar.
-
-**H2 — Recuperar a PSK do Windows.** Na máquina do irmão (só leitura, com permissão dele):
-- instalar USBPcap + Wireshark, capturar (a) boot/inicialização do driver, (b) um
-  `verify` do Windows Hello; salvar em `dumps/windows-*.pcapng`
-- localizar onde o driver Goodix guarda o estado do pareamento: chaves de registro do
-  driver (`HKLM\SYSTEM\CurrentControlSet\...`, `Enum\USB\VID_27C6&PID_55A4`), arquivos em
-  `C:\Windows\System32\drivers`, `WinBioDatabase`; copiar `Wbdi.dll`, `.inf`, `.sys` e o
-  pacote do driver `r16gf09w` pra `dumps/windows-driver/` (contém o firmware 10062 — fonte
-  legítima, sem depender da redistribuição do jith)
-- analisar o `Wbdi.dll` (Ghidra/radare2) pra ver como a PSK é derivada/armazenada;
-  se vier de TPM/DPAPI por máquina, o caminho sem flash morre aqui — registrar e seguir
-- **não** reinstalar driver nem forçar re-pareamento na máquina dele
-
-**H3 — Dump do app atual antes do flash.** O bootloader MILAN IAP permite ler o app de
-volta? Se sim, `dumps/app-10039-backup.bin` vira o caminho de volta pro estado de fábrica
-que hoje não existe na comunidade. Só leitura, mas passa pelo IAP → tratar como escrita
-(exige `FLASH AUTORIZADO`) e discutir antes.
-
-**H4 — Peça de reposição.** Verificar no Lenovo Parts Lookup (pelo serial) se o leitor de
-digitais do 20RA é FRU separado e quanto custa no Brasil. Se for uma plaquinha barata,
-o pior caso da Fase 4 vira "comprar peça".
+1. **`tools/pair_psk.py`** — escrito do zero sobre o framing do `probe_readonly.py`, **sem**
+   importar `driver_*.py` nem chamar `main()` do goodix-fp-dump. Whitelist: 0x00, 0xa8, 0xf6,
+   0xe4, **0xe0**. Fluxo:
+   - lê firmware; aborta se não casar `GF32[0-9]{2}_RTSEC_APP_10062`;
+   - lê IAP; aborta se ≠ `MILAN_RTSEC_IAP_10027`;
+   - lê hash; se já `== PMK_HASH` → "já pareado", sai sem escrever;
+   - imprime `⚠️ ESTE PASSO ESCREVE NO SENSOR` e o payload exato; exige confirmação
+     interativa **e** flag `--i-typed-flash-autorizado`;
+   - `preset_psk_write(0xbb010003, PSK_WHITE_BOX)` (1 comando); espera reply `0x00`;
+   - relê hash; sucesso ⇔ `== PMK_HASH`. Em falha: **não reenvia**; salva log e sai.
+   - `--dry-run` imprime os bytes; salva `dumps/pair-YYYYMMDD.json` com log USB completo.
+   - validar no dry-run que os bytes batem com `goodix.preset_psk_write` original.
+2. **`DOSSIER-PSK.md`**: estado atual (probe), o que será escrito (byte a byte), precedentes
+   (jith#1, PR#3), riscos (app rejeitar; hash não bater; travamento), mitigações, o que **não**
+   fazemos (erase/IAP/firmware), plano B (caminho IAP do jith, só como último recurso, dossiê
+   separado), e peça de reposição.
+3. **H4 — Peça**: Lenovo Parts Lookup pelo serial do 20RB: o leitor é FRU separado? preço BR.
+4. **H5 (opcional, pesquisa)**: derivação do `PMK_HASH` a partir da PSK (não é
+   `sha256(pmk)` nem `sha256(psk)` — testado). Útil só como oráculo; não bloqueia nada.
+5. Capturas Windows na máquina do irmão: **rebaixadas a opcional** (a PSK dele não é a nossa).
+   Só se precisarmos entender o fluxo de captura do Windows pra tuning (Fase 5).
 
 Pronto quando:
-- [ ] cada hipótese tem veredito em NOTES.md: confirmada / refutada / inconclusiva + evidência
-- [ ] dossiê `DOSSIER-FLASH.md` com: estado atual do sensor, caminho de flash proposto
-  (10039 → ? → 10062), o que é testado e o que não é, mitigações, plano de rollback
-  (ou "não há rollback"), custo da peça
+- [ ] `pair_psk.py` com dry-run validado e recusando qualquer opcode fora da whitelist
+- [ ] `DOSSIER-PSK.md` lido pelo Luiz
 
 ---
 
-## Fase 4 — Flash (ÚNICO passo com risco)
+## Fase 4 — Gravar a PSK (ÚNICO passo que escreve no sensor)
 
-Só começa depois do dossiê lido pelo Luiz e `FLASH AUTORIZADO` digitado na sessão.
+Só começa depois do dossiê lido e `FLASH AUTORIZADO` digitado na sessão.
 
-Pré-condições (checar todas, abortar se alguma falhar):
-- [ ] AC conectada, bateria > 50%
-- [ ] `systemd-inhibit --what=sleep:idle:handle-lid-switch --who=flash --why="goodix flash" sleep infinity &`
-- [ ] tampa aberta, laptop numa mesa, nada no USB além do necessário
-- [ ] `fprintd` parado, nenhum outro processo com o device aberto (`lsof /dev/bus/usb/...`)
-- [ ] SHA-256 do firmware conferido contra o esperado
-- [ ] bootloader confirmado `MILAN_RTSEC_IAP_10027` na Fase 1
-- [ ] captura usbmon rodando pra ter o registro do flash (`dumps/flash.pcapng`)
+Pré-condições (abortar se alguma falhar):
+- [ ] AC conectada, bateria > 50 %
+- [ ] `systemd-inhibit --what=sleep:idle:handle-lid-switch --who=psk --why="goodix psk" sleep infinity &`
+- [ ] `fprintd` parado; `fuser /dev/bus/usb/001/00N` vazio
+- [ ] `probe_readonly.py` imediatamente antes: firmware 10062, IAP 10027, hash `4e2f…` (estado inalterado)
+- [ ] usbmon gravando (`dumps/pair.pcapng`)
 
-Executar o `flash-firmware.sh` do jith (ou o equivalente auditado), sem interromper.
-Depois: `lsusb`, `probe_readonly.py` de novo, `systemctl start fprintd`, e
-`journalctl -u fprintd -b | grep "Device firmware"` deve mostrar `_10062`.
+Executar `sudo tools/pair_psk.py --i-typed-flash-autorizado`. Depois: `probe_readonly.py`
+(hash deve ser `81b8ff49…0361`), `systemctl start fprintd`, `fprintd-verify` deve passar da
+fase TLS. Se o handshake TLS falhar com PSK correta → aplicar patch 0012 (Fase 2.3), rebuild.
+
+Rollback: a PSK do Windows não volta — irrelevante (sem Windows). Firmware fica intacto.
 
 ---
 
 ## Fase 5 — Entrega
 
-1. Enroll com `vendor/jith-55a4/scripts/enroll.sh` (adaptar o que for pacman-específico):
-   sensor limpo, dedo seco, toque leve, 40 presses.
-2. `fprintd-verify` ×10, registrar taxa de acerto e scores SIGFM.
-3. PAM no Fedora: `sudo authselect enable-feature with-fingerprint` (sudo e desbloqueio KDE);
-   conferir que a senha continua funcionando com o sensor desplugado/lógico.
-4. Tuning se precisar (`tune.sh`, tcode, threshold) — documentar valores do **nosso** sensor.
-5. Publicar: COPR `luizfelipe/libfprint-goodixtls-55a4` (ou nome que ele escolher) com
-   o spec; `README.pt-BR.md` com o guia; issue/PR no repo do jith e no
-   `goodix-fp-linux-dev` com o caminho 10039 documentado, dumps anonimizados e os patches
-   em `git format-patch`.
-6. Pós-update: hook `dnf` (ou script em `tools/check-libfprint.sh`) que testa se a
-   `libfprint-2.so` ainda carrega depois de update de opencv/glib2/openssl/libgusb.
+1. Enroll com `vendor/jith-55a4/scripts/enroll.sh` adaptado (sem pacman); 40 presses.
+2. `fprintd-verify` ×10; registrar taxa e scores SIGFM. Tuning (tcode do nosso OTP é 0xd0,
+   não 0xf0 — os defaults do jith podem precisar ajuste; documentar).
+3. PAM: `sudo authselect enable-feature with-fingerprint` (sufficient). Senha continua.
+4. Repetir teste de suspend com driver carregado (re-enumeração relatada pelo jith).
+5. Publicar: COPR com o spec; `README.pt-BR.md`; comentar em **jith#1** como segundo caso
+   (20RB, 10062 Windows-paired, pairing-only) e propor PR do helper pairing-only; reportar o
+   bug de `goodix_send_preset_psk_write` e o fix de cipher list (se confirmado no Fedora)
+   pra TheWeirdDev/libfprint e goodix-fp-linux-dev.
+6. `tools/check-libfprint.sh`: hook pós-update que testa se `libfprint-2.so` ainda carrega.

@@ -254,3 +254,56 @@ Pronto-quando do PLAN:
 Próximo: Fase 2 (RPM do libfprint patcheado; esperado parar em `Invalid device PSK` — agora
 com o firmware certo, essa vai ser a **única** barreira). A Fase 3 precisa ser re-escopada:
 o flash de firmware saiu do caminho e H1 (só PSK) virou o caminho principal.
+
+### Pesquisa pós-probe — gravação só da PSK (2026-10-08, ~01:20)
+
+Pergunta: a app Goodix aceita sobrescrever uma PSK do Windows via 0xe0, sem IAP?
+
+**Evidência A — jith/goodix-55a4-fingerprint issue #1** (m1q, 2026-10-03, aberta, sem resposta
+do jith): ThinkBook 15-IIL (20SM), **27c6:55a4**, firmware `GF3208_RTSEC_APP_10052` (fprintd
+mostra `GF3268_…_10052`), IAP `MILAN_RTSEC_IAP_10027`, pareado pelo Windows. Fez um helper
+"pairing-only" a partir do código do goodix-fp-dump: `preset_psk_read(0xbb020007)` → não
+pareado com Linux → `preset_psk_write(0xbb010003, PSK_WHITE_BOX)` → releitura → hash bate.
+**Sem erase, sem flash, sem reset.** Driver do jith funcionou: captura 108×88, enroll 40
+amostras, verify OK, sudo + lockscreen. Firmware ficou 10052. Dual boot não testado.
+→ Mesmo sensor, mesmo IAP, firmware "não-10062", PSK Windows: **caminho H1 confirmado por
+terceiro** (n=1). Nosso caso é ainda melhor: já estamos no 10062, que é o firmware testado.
+
+**Evidência B — TheWeirdDev/libfprint PR #3** (jedbillyb, aberta, 14 commits, sem review):
+27c6:**55b4**, `GF3268_RTSEC_APP_10056`, pareado pelo Windows. Adiciona estado
+`ACTIVATE_WRITE_PSK` no driver (grava white-box com flags 0xbb010003 quando o hash não bate).
+Funcionou. Dois achados técnicos:
+1. **Bug no fork**: `goodix_send_preset_psk_write` (goodix.c:1207) manda
+   `sizeof(payload) + length` com `payload` sendo ponteiro → 8+len em vez de 12+len; PSK
+   truncada, **sensor gravou hash errado/não-determinístico**. Confirmado lendo o código do
+   nosso snapshot c1937b9 (mesma linha). O driver do jith **não chama** essa função (grep nos
+   patches: nada) → RPM da Fase 2 não grava nada. **Regra: nunca gravar PSK pelo libfprint;
+   só pela ferramenta Python auditada.**
+2. **TLS no OpenSSL 3.x**: fork usa `SSL_CTX_set_cipher_list(ctx, "ALL")` (goodixtls.c:95,124);
+   "ALL" exclui suítes PSK e o seclevel default rejeita as que o sensor oferece →
+   `SSL_accept` falha "cipher operation failed". Fix: `"PSK:@SECLEVEL=0"`. **Fedora 44 tem
+   OpenSSL 3.5.9 e crypto-policies `@SECLEVEL=2`** (`/etc/crypto-policies/back-ends/opensslcnf.config`),
+   mais restritivo que o Arch do jith. **[HIPÓTESE]** vamos precisar desse patch (0012) na
+   Fase 2 — sintoma esperado: PSK OK mas handshake TLS falha.
+
+**Evidência C — goodix-fp-dump issue #80** (5125, Huawei): autor reutilizou a PSK do Windows
+extraída do próprio Windows, pergunta o que acontece no Windows após provisionar PSK Linux.
+Sem respostas. Pra nós é irrelevante (sem Windows nesta máquina), mas confirma que extrair a
+PSK do Windows é viável *quando o Windows ainda existe* — não é o nosso caso (máquina comprada
+usada, Windows removido).
+
+#### Decisão de plano
+
+- **Não há caminho sem escrita.** A PSK do Windows deste sensor se perdeu com o Windows; a do
+  sensor do irmão é outra. H2 morre (exceto se a PSK for derivável do hardware — hipótese
+  fraca, só testável com Wbdi.dll, custo alto, ganho baixo agora que H1 tem precedente).
+- **Flash de firmware: fora.** Nenhum erase/IAP/write_firmware. Firmware já é o ideal.
+- **A única escrita será `preset_psk_write(0xbb010003, PSK_WHITE_BOX)`** (1 comando, ~100 B,
+  sem passar por bootloader), com a app 10062 rodando, seguida de `preset_psk_read` pra
+  verificar `== PMK_HASH`. Ainda exige `FLASH AUTORIZADO`. Rollback: a PSK Windows não
+  volta (irrelevante aqui); o firmware fica intacto, então o pior caso plausível é
+  "PSK gravada errada" → regravar. Pior caso improvável: app rejeita e trava → ainda temos o
+  caminho IAP do jith como último recurso.
+- Fontes: https://github.com/jith/goodix-55a4-fingerprint/issues/1 ,
+  https://github.com/TheWeirdDev/libfprint/pull/3 ,
+  https://github.com/goodix-fp-linux-dev/goodix-fp-dump/issues/80
