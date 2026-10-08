@@ -1,3 +1,4 @@
 vendor/
 logs/*.pcapng
 dumps/*.pcapng
+.venv/
