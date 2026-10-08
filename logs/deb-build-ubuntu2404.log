@@ -1,0 +1,26 @@
+/home/f360c4/dev/goodix-55a4-fedora/vendor/jith-55a4/driver/upstream/libfprint-TheWeirdDev-55b4-experimental-c1937b9.tar.xz: SUCESSO
+================ ubuntu:24.04
+debconf: delaying package configuration, since apt-utils is not installed
+ dpkg-genbuildinfo --build=binary -O../libfprint-goodixtls-55a4_1.94.9+goodix55a4.1.94.6.c1937b9-1~ubuntu2404_amd64.buildinfo
+ dpkg-genchanges --build=binary -O../libfprint-goodixtls-55a4_1.94.9+goodix55a4.1.94.6.c1937b9-1~ubuntu2404_amd64.changes
+dpkg-genchanges: info: binary-only upload (no source code included)
+ dpkg-source --after-build .
+dpkg-buildpackage: info: binary-only upload (no source included)
+libfprint-goodixtls-55a4-dev_1.94.9+goodix55a4.1.94.6.c1937b9-1~ubuntu2404_amd64.deb
+libfprint-goodixtls-55a4_1.94.9+goodix55a4.1.94.6.c1937b9-1~ubuntu2404_amd64.deb
+---- install test (does not abort the build)
+Removing libfprint-2-2 (1:1.94.7+tod1-0ubuntu5~24.04.8) ...
+Removing libfprint-2-tod1:amd64 (1:1.94.7+tod1-0ubuntu5~24.04.8) ...
+Setting up libfprint-goodixtls-55a4:amd64 (1:1.94.9+goodix55a4.1.94.6.c1937b9-1~ubuntu2404) ...
+ii fprintd 1.94.3-1
+ii libfprint-goodixtls-55a4:amd64 1:1.94.9+goodix55a4.1.94.6.c1937b9-1~ubuntu2404
+---- symbols: fprintd vs our lib
+no undefined symbols: fprintd links against our libfprint
+---- lib resolves / lists 55a4
+all libfprint deps resolve
+total 932
+-rw-r--r--. 1 f360c4 f360c4 125444 out  8 10:20 libfprint-goodixtls-55a4_1.94.9+goodix55a4.1.94.6.c1937b9-1~debian13_amd64.deb
+-rw-r--r--. 1 f360c4 f360c4 122036 out  8 10:26 libfprint-goodixtls-55a4_1.94.9+goodix55a4.1.94.6.c1937b9-1~ubuntu2404_amd64.deb
+-rw-r--r--. 1 f360c4 f360c4 662120 out  8 10:20 libfprint-goodixtls-55a4-dbgsym_1.94.9+goodix55a4.1.94.6.c1937b9-1~debian13_amd64.deb
+-rw-r--r--. 1 f360c4 f360c4  19152 out  8 10:20 libfprint-goodixtls-55a4-dev_1.94.9+goodix55a4.1.94.6.c1937b9-1~debian13_amd64.deb
+-rw-r--r--. 1 f360c4 f360c4  19212 out  8 10:26 libfprint-goodixtls-55a4-dev_1.94.9+goodix55a4.1.94.6.c1937b9-1~ubuntu2404_amd64.deb

@@ -164,7 +164,7 @@ substitui o `libfprint-2-2` (e o `libfprint-2-tod1` do Ubuntu); o `fprintd` cont
 
 ```bash
 # baixe o .deb da sua distro em Releases, depois:
-sudo apt install ./libfprint-goodixtls-55a4_*~ubuntu2404_amd64.deb   # ou ~ubuntu2604 / ~debian13
+sudo apt install ./libfprint-goodixtls-55a4_*ubuntu2404_amd64.deb   # ou ubuntu2604 / debian13
 sudo apt-mark hold libfprint-goodixtls-55a4
 ```
 

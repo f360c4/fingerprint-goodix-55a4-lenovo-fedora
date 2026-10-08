@@ -132,3 +132,13 @@ Rollback: a PSK do Windows não volta — irrelevante (sem Windows). Firmware fi
    bug de `goodix_send_preset_psk_write` e o fix de cipher list (se confirmado no Fedora)
    pra TheWeirdDev/libfprint e goodix-fp-linux-dev.
 6. `tools/check-libfprint.sh`: hook pós-update que testa se `libfprint-2.so` ainda carrega.
+
+---
+
+## Fase 6 — Pacotes Debian/Ubuntu ✅ (2026-10-08, manhã)
+
+`deb/` (debian/control, rules, install, copyright + `build.sh` com podman). `.deb` pra Ubuntu
+24.04, Ubuntu 26.04 e Debian 13, versionados `1:1.94.9+goodix55a4.1.94.6.c1937b9-1~<distro>`
+pra satisfazer o `libfprint-2-2 (>= 1:1.94.9)` do fprintd; `Provides/Conflicts/Replaces`
+`libfprint-2-2` e `libfprint-2-tod1`. Testado em contêiner (instalação, símbolos do fprintd,
+deps); **não** testado com sensor real nessas distros. Anexados à release v0.1.0.

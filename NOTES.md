@@ -464,3 +464,12 @@ contêineres (`logs/deb-build-*.log`):
 - **Ubuntu 24.04 ✅**: build OK; instala removendo `libfprint-2-2` e `libfprint-2-tod1`
   1:1.94.7+tod1; fprintd 1.94.3 sem símbolos indefinidos; deps resolvem; driver 55X4 na lib;
   NEEDED opencv `.so.406`.
+- **Ubuntu 26.04 ✅** (após fix `:z`): build OK; instala removendo `libfprint-2-tod1` e
+  `libfprint-2-2` 1:1.95.1+tod1; fprintd 1.94.5 sem símbolos indefinidos; deps resolvem.
+- Resultado: 3 pares (.deb + -dev) em `deb/out/`, anexados à release v0.1.0 com sha256.
+  README (en + pt-BR) com seção Debian/Ubuntu marcada **experimental** (sem teste em hardware).
+- Limpeza: `build/`, `rpm/_topdir`, `deb/_work`, `__pycache__` removidos; imagens podman
+  removidas. Pendente do Luiz: `sudo tools/debug-off.sh` (tirar G_MESSAGES_DEBUG do fprintd).
+
+**Fase 6 ✅.** Projeto completo: Fedora funcionando no hardware; RPM + 3 .deb publicados;
+contribuições postadas em jith#1 e TheWeirdDev PR#3.
