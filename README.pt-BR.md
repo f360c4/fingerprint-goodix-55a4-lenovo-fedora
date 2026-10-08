@@ -28,7 +28,8 @@ que vem pelo driver Windows `r16gf09w`). Se a sua máquina já teve Windows com 
 é provável que já esteja nele — foi o caso desta. Pra saber sem escrever nada:
 
 ```bash
-git clone https://github.com/<seu-usuario>/goodix-55a4-fedora && cd goodix-55a4-fedora
+git clone https://github.com/<usuario>/fingerprint-goodix-55a4-lenovo-fedora
+cd fingerprint-goodix-55a4-lenovo-fedora
 python3 -m venv .venv && .venv/bin/pip install pyusb
 sudo systemctl stop fprintd
 sudo .venv/bin/python tools/probe_readonly.py
@@ -62,7 +63,8 @@ sudo dnf swap libfprint rpm/out/libfprint-goodixtls-55a4-*.x86_64.rpm
 sudo dnf versionlock add libfprint-goodixtls-55a4
 ```
 
-(Quando houver COPR: `sudo dnf copr enable <usuario>/libfprint-goodixtls-55a4 && sudo dnf swap libfprint libfprint-goodixtls-55a4`.)
+Sem compilar: baixe o `.rpm` pronto na página de **Releases** deste repositório e rode só as duas
+linhas `dnf swap` / `dnf versionlock`. (Pacote pronto só pra versão do Fedora indicada na release.)
 
 Teste: `fprintd-list $USER` deve dizer `Goodix TLS Fingerprint Sensor 55X4`. Um `fprintd-enroll`
 agora vai falhar com `Invalid device PSK` — é o esperado antes do passo 3.
@@ -124,10 +126,11 @@ tools/check-libfprint.sh
 Se o OpenCV, glib ou OpenSSL mudarem de soname, a lib para de carregar; é só `rpm/build.sh`
 e `sudo dnf reinstall rpm/out/libfprint-goodixtls-55a4-*.x86_64.rpm`.
 
-## SELinux
+## SELinux (opcional)
 
-Ao iniciar, o OpenCV lê `/proc/sys/vm/nr_hugepages` e o SELinux nega (inofensivo, só gera
-alerta). Pra silenciar: `sudo dnf install selinux-policy-devel && sudo selinux/install.sh`.
+Pode aparecer um alerta "SELinux está impedindo fprintd de acessar nr_hugepages". É só o
+OpenCV sondando memória ao carregar; o SELinux bloqueia, o OpenCV segue sem, nada deixa de
+funcionar. Se o alerta incomodar: `sudo dnf install selinux-policy-devel && sudo selinux/install.sh`.
 
 ## Problemas
 

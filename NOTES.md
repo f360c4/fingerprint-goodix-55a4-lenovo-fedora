@@ -409,3 +409,12 @@ Evidência: `logs/phase5-enroll-verify-20261008-014748.log` (journal do fprintd)
 + `/etc/pam.d/kde-fingerprint` (Plasma usa em paralelo). Não há `/etc/pam.d/sddm` nesta
 instalação (grep vazio) — login gráfico não foi configurado por nós; a verificar o que o
 Fedora 44 KDE usa como greeter. `authselect check`: configuração válida.
+
+### Fase 5 — testes do Luiz (2026-10-08 ~02:00)
+
+Relato do Luiz: "tudo ok, funcionou" — sudo por digital com fallback de senha, tela de
+bloqueio do KDE, e suspend/resume com `tools/check-libfprint.sh` + `fprintd-verify`.
+(Relato verbal; logs não coletados. Re-enumeração após suspend não observada neste teste.)
+Decisões: SELinux módulo fica **opcional** no README (só silencia alerta). Publicação
+simplificada: GitHub público + RPM anexado em Release (COPR fica como passo futuro opcional).
+Nome do repo escolhido pelo Luiz: `fingerprint-goodix-55a4-lenovo-fedora`.
