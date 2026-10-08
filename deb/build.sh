@@ -21,8 +21,8 @@ base_version="1:1.94.9+goodix55a4.1.94.6.c1937b9"
 for img in "${targets[@]}"; do
   suffix=$(echo "$img" | tr -d ':' | tr -d '.')   # ubuntu2404
   echo "================ $img"
-  podman run --rm -v "$here/debian:/debian:ro,Z" -v "$here/_work:/work:Z" \
-    -v "$repo/rpm/patches:/patches:ro,Z" -v "$here/out:/out:Z" \
+  podman run --rm -v "$here/debian:/debian:ro,z" -v "$here/_work:/work:z" \
+    -v "$repo/rpm/patches:/patches:ro,z" -v "$here/out:/out:z" \
     -e DEBIAN_FRONTEND=noninteractive -e BASEVER="$base_version" -e SUFFIX="$suffix" \
     "docker.io/library/$img" bash -euo pipefail -c '
       apt-get update -qq

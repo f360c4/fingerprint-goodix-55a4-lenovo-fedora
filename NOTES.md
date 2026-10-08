@@ -458,3 +458,9 @@ contêineres (`logs/deb-build-*.log`):
 - **Debian 13 ✅**: build OK; instala removendo `libfprint-2-2 1:1.94.9-1`; `ldd -r` do
   `/usr/libexec/fprintd` sem símbolos indefinidos; deps resolvem; lib contém
   `FpiDeviceGoodixTls55X4`; NEEDED opencv `.so.410`. Não testado com sensor real (sem Debian aqui).
+- Rodada paralela: Ubuntu 26.04 falhou com "Permission denied" no tarball — montagens `:Z`
+  (rótulo SELinux privado) em diretório compartilhado por 3 contêineres; trocado por `:z`
+  e relançado.
+- **Ubuntu 24.04 ✅**: build OK; instala removendo `libfprint-2-2` e `libfprint-2-tod1`
+  1:1.94.7+tod1; fprintd 1.94.3 sem símbolos indefinidos; deps resolvem; driver 55X4 na lib;
+  NEEDED opencv `.so.406`.
