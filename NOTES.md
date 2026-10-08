@@ -418,3 +418,17 @@ bloqueio do KDE, e suspend/resume com `tools/check-libfprint.sh` + `fprintd-veri
 Decisões: SELinux módulo fica **opcional** no README (só silencia alerta). Publicação
 simplificada: GitHub público + RPM anexado em Release (COPR fica como passo futuro opcional).
 Nome do repo escolhido pelo Luiz: `fingerprint-goodix-55a4-lenovo-fedora`.
+
+### Publicação (2026-10-08 ~02:20)
+
+- Repo público: https://github.com/f360c4/fingerprint-goodix-55a4-lenovo-fedora (branch `main`,
+  topics fingerprint/goodix/libfprint/fprintd/fedora/thinkpad/lenovo).
+- Release **v0.1.0** com o RPM x86_64 (fc44) e o SRPM, sha256 nas notas da release.
+- READMEs (en + pt-BR) com seção "por que não está no kernel/Fedora", tabela de firmware,
+  outras distros, palavras-chave de busca.
+- Pendentes de contribuição upstream (precisam de OK do Luiz antes de postar, são públicos):
+  1. comentário em jith/goodix-55a4-fingerprint#1 (segundo caso pairing-only, 10062 Windows-paired);
+  2. issue em TheWeirdDev/libfprint sobre `goodix_send_preset_psk_write` (sizeof de ponteiro)
+     — o PR #3 já corrige; comentar lá confirmando é suficiente;
+  3. COPR (opcional, futuro).
+- Limpeza opcional na máquina: `sudo tools/debug-off.sh` (tira o debug do fprintd do journal).
