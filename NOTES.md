@@ -371,3 +371,16 @@ Próximo: Fase 4 (gravar a PSK), condicionada a `FLASH AUTORIZADO`.
 `FLASH AUTORIZADO` digitado pelo Luiz na sessão após ler o dossiê e a explicação sobre
 Windows/dual boot. Pré-condições vistas sem root: AC=1, bateria 100 %, fprintd inactive,
 sensor em bus 1 dev 3 (mesmo devnum desde o boot). Próximo: `sudo tools/run_pair_captured.sh`.
+
+### Fase 4 — PSK gravada ✅ (2026-10-08 01:41)
+
+Evidência: `logs/pair-20261008-014143.log`, `dumps/pair-20261008-014143.json`,
+`dumps/pair-20261008-014143.pcapng`, `dumps/probe-20261008-014143-{before,after}.json`.
+
+- Primeira tentativa abortou (fprintd re-ativado via D-Bus); script ajustado pra parar o fprintd.
+- Probe antes: 10062 / IAP 10027 / hash `4e2f…` (inalterado desde a Fase 1).
+- `preset_psk_write(0xbb010003, PSK_WHITE_BOX)` → reply `00` (OK).
+- Hash depois: **`81b8ff490612022a121a9449ee3aad2792f32b9f3141182cd01019945ee50361`** = PSK zero.
+- Probe depois: firmware, IAP e OTP idênticos aos de antes.
+- **Confirma a hipótese H1 neste sensor: a app 10062 aceita 0xe0 sobrescrevendo uma PSK do
+  Windows, sem IAP.** Terceiro relato público (jith#1, PR#3, este), primeiro em 10062 Windows-paired.

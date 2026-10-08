@@ -1,0 +1,54 @@
+== bus 1 addr 3 (/dev/bus/usb/001/003)
+== probe BEFORE
+device bus 1 addr 3, ep_out 0x1 ep_in 0x82
+[drain_stale_replies]
+  -> 0
+[nop]
+  -> None
+[firmware_version]
+  -> GF3268_RTSEC_APP_10062
+[iap_version]
+  -> MILAN_RTSEC_IAP_10027
+[psk_hash]
+  -> {'status': '0x00', 'flags': '0xbb020007', 'pmk_hash': '4e2f72445608d1ada6639ed1887460925fd3c8a9a46926dcd7af864f1005e10c', 'is_zero_psk': False}
+[otp]
+  -> {'raw': '08a6064b502cf7e5e82942a9020408dec20c925b0a94c73806000000c0bc7b44', 'sha256': 'f2a66d698e38de518f3a36e701580eae6c06269a52c1557eb49e39b498676952', 'decoded': {'length': 32, 'byte_0x16': '0xc7', 'byte_0x17': '0x38', 'calibration_valid': True, 'tcode': '0xd0', 'fdt_delta': '0x17', 'image_tcode_jith_default': '0x70', 'byte_0x11': '0x0c', 'fdt_offset': 0}}
+saved /home/f360c4/dev/goodix-55a4-fedora/dumps/probe-20261008-014143-before.json
+firmware: GF3268_RTSEC_APP_10062 (NOT GF3208_RTSEC_APP_10039)
+iap:      MILAN_RTSEC_IAP_10027 (as expected)
+== pair
+device bus 1 addr 3, ep_out 0x1 ep_in 0x82
+firmware: GF3268_RTSEC_APP_10062
+iap:      MILAN_RTSEC_IAP_10027
+psk before: {'status': '0x00', 'flags': '0xbb020007', 'pmk_hash': '4e2f72445608d1ada6639ed1887460925fd3c8a9a46926dcd7af864f1005e10c', 'is_zero_psk': False}
+
+⚠️  ESTE PASSO ESCREVE NO SENSOR
+  comando : 0xe0 preset_psk_write
+  flags   : 0xbb010003
+  payload : 104 bytes = flags(4) + len(4) + white-box PSK(96)
+            030001bb60000000ec35ae3abb45ed3f12c4751f1e5c2cc05b3c5452e9104d9f2a3118644f37a04b6fd66b1d97cf80f1345f76c84f03ff30bb51bf308f2a9875c41e6592cd2a2f9e60809b17b5316037b69bb2fa5d4c8ac31edb3394046ec06bbdacc57da6a756c5
+  efeito  : a PSK do Windows deste sensor é substituída pela PSK Linux (toda-zero).
+            Firmware e bootloader NÃO são tocados.
+
+Digite 4647 para gravar a PSK (qualquer outra coisa aborta): write reply: 00 -> OK
+psk after:  {'status': '0x00', 'flags': '0xbb020007', 'pmk_hash': '81b8ff490612022a121a9449ee3aad2792f32b9f3141182cd01019945ee50361', 'is_zero_psk': True}
+SUCCESS: sensor now has the Linux PSK
+saved /home/f360c4/dev/goodix-55a4-fedora/dumps/pair-20261008-014143.json
+== pair exit 0
+== probe AFTER
+device bus 1 addr 3, ep_out 0x1 ep_in 0x82
+[drain_stale_replies]
+  -> 0
+[nop]
+  -> None
+[firmware_version]
+  -> GF3268_RTSEC_APP_10062
+[iap_version]
+  -> MILAN_RTSEC_IAP_10027
+[psk_hash]
+  -> {'status': '0x00', 'flags': '0xbb020007', 'pmk_hash': '81b8ff490612022a121a9449ee3aad2792f32b9f3141182cd01019945ee50361', 'is_zero_psk': True}
+[otp]
+  -> {'raw': '08a6064b502cf7e5e82942a9020408dec20c925b0a94c73806000000c0bc7b44', 'sha256': 'f2a66d698e38de518f3a36e701580eae6c06269a52c1557eb49e39b498676952', 'decoded': {'length': 32, 'byte_0x16': '0xc7', 'byte_0x17': '0x38', 'calibration_valid': True, 'tcode': '0xd0', 'fdt_delta': '0x17', 'image_tcode_jith_default': '0x70', 'byte_0x11': '0x0c', 'fdt_offset': 0}}
+saved /home/f360c4/dev/goodix-55a4-fedora/dumps/probe-20261008-014143-after.json
+firmware: GF3268_RTSEC_APP_10062 (NOT GF3208_RTSEC_APP_10039)
+iap:      MILAN_RTSEC_IAP_10027 (as expected)

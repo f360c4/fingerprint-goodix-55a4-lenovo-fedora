@@ -1,0 +1,110 @@
+{
+  "timestamp": "20261008-014145",
+  "dry_run": false,
+  "commands_allowed": {
+    "0x00": "nop",
+    "0xa8": "firmware_version",
+    "0xf6": "get_iap_version",
+    "0xe4": "preset_psk_read",
+    "0xa6": "read_otp"
+  },
+  "steps": {
+    "drain_stale_replies": {
+      "ok": true,
+      "value": 0
+    },
+    "nop": {
+      "ok": true,
+      "value": null
+    },
+    "firmware_version": {
+      "ok": true,
+      "value": "GF3268_RTSEC_APP_10062"
+    },
+    "iap_version": {
+      "ok": true,
+      "value": "MILAN_RTSEC_IAP_10027"
+    },
+    "psk_hash": {
+      "ok": true,
+      "value": {
+        "status": "0x00",
+        "flags": "0xbb020007",
+        "pmk_hash": "4e2f72445608d1ada6639ed1887460925fd3c8a9a46926dcd7af864f1005e10c",
+        "is_zero_psk": false
+      }
+    },
+    "otp": {
+      "ok": true,
+      "value": {
+        "raw": "08a6064b502cf7e5e82942a9020408dec20c925b0a94c73806000000c0bc7b44",
+        "sha256": "f2a66d698e38de518f3a36e701580eae6c06269a52c1557eb49e39b498676952",
+        "decoded": {
+          "length": 32,
+          "byte_0x16": "0xc7",
+          "byte_0x17": "0x38",
+          "calibration_valid": true,
+          "tcode": "0xd0",
+          "fdt_delta": "0x17",
+          "image_tcode_jith_default": "0x70",
+          "byte_0x11": "0x0c",
+          "fdt_offset": 0
+        }
+      }
+    }
+  },
+  "usb_log": [
+    {
+      "dir": "out",
+      "hex": "a00800a80005000000000088"
+    },
+    {
+      "dir": "out",
+      "hex": "a00600a6a803000000ff"
+    },
+    {
+      "dir": "in",
+      "hex": "a00600a6b00300a8014e"
+    },
+    {
+      "dir": "in",
+      "hex": "a01b00bba818004746333236385f52545345435f4150505f31303036320012"
+    },
+    {
+      "dir": "out",
+      "hex": "a00600a6f60300190098"
+    },
+    {
+      "dir": "in",
+      "hex": "a00600a6b00300f60100"
+    },
+    {
+      "dir": "in",
+      "hex": "a01d00bdf61a004d494c414e5f52545345435f4941505f313030323700c7b93601"
+    },
+    {
+      "dir": "out",
+      "hex": "a00c00ace40900070002bb00000000f9"
+    },
+    {
+      "dir": "in",
+      "hex": "a00600a6b00300e40112"
+    },
+    {
+      "dir": "in",
+      "hex": "a02d00cde42a0000070002bb200000004e2f72445608d1ada6639ed1887460925fd3c8a9a46926dcd7af864f1005e10c34"
+    },
+    {
+      "dir": "out",
+      "hex": "a00600a6a60300000001"
+    },
+    {
+      "dir": "in",
+      "hex": "a00600a6b00300a60150"
+    },
+    {
+      "dir": "in",
+      "hex": "a02400c4a6210008a6064b502cf7e5e82942a9020408dec20c925b0a94c73806000000c0bc7b440b"
+    }
+  ]
+}

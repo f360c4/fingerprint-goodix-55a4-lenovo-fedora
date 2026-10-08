@@ -1,0 +1,89 @@
+{
+  "timestamp": "20261008-014146",
+  "dry_run": false,
+  "steps": {
+    "firmware": "GF3268_RTSEC_APP_10062",
+    "iap": "MILAN_RTSEC_IAP_10027",
+    "psk_before": {
+      "status": "0x00",
+      "flags": "0xbb020007",
+      "pmk_hash": "4e2f72445608d1ada6639ed1887460925fd3c8a9a46926dcd7af864f1005e10c",
+      "is_zero_psk": false
+    },
+    "write_reply": "00",
+    "psk_after": {
+      "status": "0x00",
+      "flags": "0xbb020007",
+      "pmk_hash": "81b8ff490612022a121a9449ee3aad2792f32b9f3141182cd01019945ee50361",
+      "is_zero_psk": true
+    }
+  },
+  "usb_log": [
+    {
+      "dir": "out",
+      "hex": "a00800a80005000000000088"
+    },
+    {
+      "dir": "out",
+      "hex": "a00600a6a803000000ff"
+    },
+    {
+      "dir": "in",
+      "hex": "a00600a6b00300a8014e"
+    },
+    {
+      "dir": "in",
+      "hex": "a01b00bba818004746333236385f52545345435f4150505f31303036320012"
+    },
+    {
+      "dir": "out",
+      "hex": "a00600a6f60300190098"
+    },
+    {
+      "dir": "in",
+      "hex": "a00600a6b00300f60100"
+    },
+    {
+      "dir": "in",
+      "hex": "a01d00bdf61a004d494c414e5f52545345435f4941505f313030323700c7b93601"
+    },
+    {
+      "dir": "out",
+      "hex": "a00c00ace40900070002bb00000000f9"
+    },
+    {
+      "dir": "in",
+      "hex": "a00600a6b00300e40112"
+    },
+    {
+      "dir": "in",
+      "hex": "a02d00cde42a0000070002bb200000004e2f72445608d1ada6639ed1887460925fd3c8a9a46926dcd7af864f1005e10c34"
+    },
+    {
+      "dir": "out",
+      "hex": "a06c000ce06900030001bb60000000ec35ae3abb45ed3f12c4751f1e5c2cc05b3c5452e9104d9f2a3118644f37a04b6fd66b1d97cf80f1345f76c84f03ff30bb51bf308f2a9875c41e6592cd2a2f9e60809b17b5316037b69bb2fa5d4c8ac31edb3394046ec06bbdacc57da6a756c50d"
+    },
+    {
+      "dir": "in",
+      "hex": "a00600a6b00300e00116"
+    },
+    {
+      "dir": "in",
+      "hex": "a00500a5e0020000c8"
+    },
+    {
+      "dir": "out",
+      "hex": "a00c00ace40900070002bb00000000f9"
+    },
+    {
+      "dir": "in",
+      "hex": "a00600a6b00300e40112"
+    },
+    {
+      "dir": "in",
+      "hex": "a02d00cde42a0000070002bb2000000081b8ff490612022a121a9449ee3aad2792f32b9f3141182cd01019945ee50361b5"
+    }
+  ],
+  "write_payload_hex": "030001bb60000000ec35ae3abb45ed3f12c4751f1e5c2cc05b3c5452e9104d9f2a3118644f37a04b6fd66b1d97cf80f1345f76c84f03ff30bb51bf308f2a9875c41e6592cd2a2f9e60809b17b5316037b69bb2fa5d4c8ac31edb3394046ec06bbdacc57da6a756c5",
+  "wrote": true
+}
