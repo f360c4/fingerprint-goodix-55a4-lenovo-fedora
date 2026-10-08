@@ -338,3 +338,21 @@ Fase 4). Ressalva: não sabemos qual suíte o sensor oferece (só saberemos na c
 Pendência Fase 5: `gh` não está instalado (`dnf install gh`) — necessário pra criar o repo
 público e o COPR. Luiz quer o repo público + "binário único" (RPM/COPR no Fedora; no Arch/Omarchy
 usa-se o pacote do jith — issue #1 do jith foi justamente num Omarchy).
+
+### Fase 2 — instalação e primeiro teste (2026-10-08 01:29)
+
+Evidência: `logs/phase2-fprintd-20261008-012957.log`.
+
+- `dnf swap libfprint → libfprint-goodixtls-55a4-1.94.6-0.1.c1937b9.fc44` OK; versionlock OK;
+  drop-in `/etc/systemd/system/fprintd.service.d/50-goodix-debug.conf` (G_MESSAGES_DEBUG=all).
+- `fprintd-list`: **`found 1 devices` — "Goodix TLS Fingerprint Sensor 55X4"**, enroll stages 41,
+  scan type press. Primeira vez que o fprintd enxerga o sensor nesta máquina.
+- `fprintd-verify` abortou em `NoEnrolledPrints` **antes** do activate → a checagem de
+  firmware/PSK (que roda no `dev_activate`) ainda não foi exercitada. Próximo:
+  `tools/phase2_enroll_test.sh` (um `fprintd-enroll`, sem dedo) — deve parar em `Invalid device PSK`.
+- Claim/open/close do device OK (USB claim pelo fprintd funciona com SELinux enforcing).
+- **AVC**: `fprintd_t` negado `read` em `/proc/sys/vm/nr_hugepages` (`sysctl_vm_t`). Origem:
+  OpenCV sondando hugepages na inicialização (libopencv_core). Inofensivo (fallback silencioso).
+  Não é o motivo de o leitor nunca ter funcionado (o libfprint stock não tem driver pro 55a4).
+  Fase 5: módulo SELinux local `dontaudit`/`allow` pra silenciar, ou reportar ao
+  selinux-policy do Fedora como "fprintd + opencv".

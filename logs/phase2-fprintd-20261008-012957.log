@@ -1,0 +1,60 @@
+== libfprint-goodixtls-55a4-1.94.6-0.1.c1937b9.fc44.x86_64
+== fprintd-list f360c4
+found 1 devices
+Device at /net/reactivated/Fprint/Device/0
+Using device /net/reactivated/Fprint/Device/0
+User f360c4 has no fingers enrolled for Goodix TLS Fingerprint Sensor 55X4.
+== fprintd-verify f360c4 (no finger needed; expect a PSK error)
+Using device /net/reactivated/Fprint/Device/0
+ListEnrolledFingers failed: GDBus.Error:net.reactivated.Fprint.Error.NoEnrolledPrints: Failed to discover prints
+(exit 1)
+== journalctl -u fprintd
+out 08 01:29:57.943360 f3-fedora systemd[1]: Stopping fprintd.service - Fingerprint Authentication Daemon...
+out 08 01:29:57.945487 f3-fedora systemd[1]: fprintd.service: Deactivated successfully.
+out 08 01:29:57.945756 f3-fedora systemd[1]: Stopped fprintd.service - Fingerprint Authentication Daemon.
+out 08 01:29:57.978353 f3-fedora systemd[1]: Starting fprintd.service - Fingerprint Authentication Daemon...
+out 08 01:29:58.065916 f3-fedora fprintd[18271]: About to load configuration file '/etc/fprintd.conf'
+out 08 01:29:58.065945 f3-fedora fprintd[18271]: Launching FprintObject
+out 08 01:29:58.066018 f3-fedora fprintd[18271]: Initializing FpContext (libfprint version 1.94.6)
+out 08 01:29:58.069267 f3-fedora fprintd[18271]: Preparing devices for resume
+out 08 01:29:58.069381 f3-fedora fprintd[18271]: No driver found for USB device 1D6B:0003
+out 08 01:29:58.069424 f3-fedora fprintd[18271]: No driver found for USB device 13D3:5415
+out 08 01:29:58.069431 f3-fedora fprintd[18271]: No driver found for USB device 8087:0026
+out 08 01:29:58.069438 f3-fedora fprintd[18271]: No driver found for USB device 1D6B:0002
+out 08 01:29:58.069498 f3-fedora fprintd[18271]: Device reported probe completion
+out 08 01:29:58.069516 f3-fedora fprintd[18271]: Completing action FPI_DEVICE_ACTION_PROBE in idle!
+out 08 01:29:58.069521 f3-fedora fprintd[18271]: Not updating temperature model, device can run continuously!
+out 08 01:29:58.070502 f3-fedora fprintd[18271]: Device Goodix TLS Fingerprint Sensor 55X4 scan type changed to 'press'
+out 08 01:29:58.070512 f3-fedora fprintd[18271]: Device Goodix TLS Fingerprint Sensor 55X4 enroll stages changed to 41
+out 08 01:29:58.070523 f3-fedora fprintd[18271]: Finger present 0
+out 08 01:29:58.070528 f3-fedora fprintd[18271]: Finger needed 0
+out 08 01:29:58.070674 f3-fedora fprintd[18271]: Got delay inhibitor for sleep.
+out 08 01:29:58.070738 f3-fedora fprintd[18271]: entering main loop
+out 08 01:29:58.070953 f3-fedora fprintd[18271]: D-Bus service launched with name: net.reactivated.Fprint
+out 08 01:29:58.070954 f3-fedora systemd[1]: Started fprintd.service - Fingerprint Authentication Daemon.
+out 08 01:29:58.072584 f3-fedora fprintd[18271]: Requesting authorization from :1.301 to call method 'ListEnrolledFingers' for device 'Goodix TLS Fingerprint Sensor 55X4'
+out 08 01:29:58.072817 f3-fedora fprintd[18271]: Getting authorization to perform Polkit action net.reactivated.fprint.device.setusername
+out 08 01:29:58.073903 f3-fedora fprintd[18271]: Getting authorization to perform Polkit action net.reactivated.fprint.device.verify
+out 08 01:29:58.074657 f3-fedora fprintd[18271]: Authorization granted to :1.301 to call method 'ListEnrolledFingers' for device 'Goodix TLS Fingerprint Sensor 55X4'!
+out 08 01:29:58.074738 f3-fedora fprintd[18271]: file_storage_discover_prints() for user 'f360c4' in '/var/lib/fprint/f360c4/goodixtls55x4/0'
+out 08 01:29:58.082944 f3-fedora fprintd[18271]: scan_dev_storedir(): opendir("/var/lib/fprint/f360c4/goodixtls55x4/0") failed: Erro ao abrir o diretório “/var/lib/fprint/f360c4/goodixtls55x4/0”: Arquivo ou diretório inexistente
+out 08 01:29:58.090146 f3-fedora fprintd[18271]: Requesting authorization from :1.303 to call method 'Claim' for device 'Goodix TLS Fingerprint Sensor 55X4'
+out 08 01:29:58.090317 f3-fedora fprintd[18271]: Getting authorization to perform Polkit action net.reactivated.fprint.device.setusername
+out 08 01:29:58.091286 f3-fedora fprintd[18271]: Getting authorization to perform Polkit action net.reactivated.fprint.device.verify
+out 08 01:29:58.092075 f3-fedora fprintd[18271]: Authorization granted to :1.303 to call method 'Claim' for device 'Goodix TLS Fingerprint Sensor 55X4'!
+out 08 01:29:58.092123 f3-fedora fprintd[18271]: user 'f360c4' claiming the device: 0
+out 08 01:29:58.198107 f3-fedora fprintd[18271]: Image device open completed
+out 08 01:29:58.198144 f3-fedora fprintd[18271]: Device reported open completion
+out 08 01:29:58.198645 f3-fedora fprintd[18271]: Completing action FPI_DEVICE_ACTION_OPEN in idle!
+out 08 01:29:58.198678 f3-fedora fprintd[18271]: Not updating temperature model, device can run continuously!
+out 08 01:29:58.198725 f3-fedora fprintd[18271]: claimed device 0
+out 08 01:29:58.200541 f3-fedora fprintd[18271]: Requesting authorization from :1.303 to call method 'ListEnrolledFingers' for device 'Goodix TLS Fingerprint Sensor 55X4'
+out 08 01:29:58.201550 f3-fedora fprintd[18271]: Getting authorization to perform Polkit action net.reactivated.fprint.device.setusername
+out 08 01:29:58.206604 f3-fedora fprintd[18271]: Getting authorization to perform Polkit action net.reactivated.fprint.device.verify
+out 08 01:29:58.211781 f3-fedora fprintd[18271]: Authorization granted to :1.303 to call method 'ListEnrolledFingers' for device 'Goodix TLS Fingerprint Sensor 55X4'!
+out 08 01:29:58.211948 f3-fedora fprintd[18271]: file_storage_discover_prints() for user 'f360c4' in '/var/lib/fprint/f360c4/goodixtls55x4/0'
+out 08 01:29:58.212014 f3-fedora fprintd[18271]: scan_dev_storedir(): opendir("/var/lib/fprint/f360c4/goodixtls55x4/0") failed: Erro ao abrir o diretório “/var/lib/fprint/f360c4/goodixtls55x4/0”: Arquivo ou diretório inexistente
+out 08 01:29:58.214692 f3-fedora fprintd[18271]: Image device close completed
+out 08 01:29:58.214734 f3-fedora fprintd[18271]: Device reported close completion
+out 08 01:29:58.214921 f3-fedora fprintd[18271]: Completing action FPI_DEVICE_ACTION_CLOSE in idle!
+out 08 01:29:58.214955 f3-fedora fprintd[18271]: Not updating temperature model, device can run continuously!
