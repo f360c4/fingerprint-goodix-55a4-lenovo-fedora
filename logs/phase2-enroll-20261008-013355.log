@@ -1,0 +1,100 @@
+== libfprint-goodixtls-55a4-1.94.6-0.1.c1937b9.fc44.x86_64
+== fprintd-enroll f360c4 (expect: Invalid device PSK)
+Using device /net/reactivated/Fprint/Device/0
+Enrolling right-index-finger finger.
+Enroll result: enroll-unknown-error
+(exit 1)
+== journalctl -u fprintd
+out 08 01:33:55.065387 f3-fedora systemd[1]: Starting fprintd.service - Fingerprint Authentication Daemon...
+out 08 01:33:55.153766 f3-fedora fprintd[19096]: About to load configuration file '/etc/fprintd.conf'
+out 08 01:33:55.153796 f3-fedora fprintd[19096]: Launching FprintObject
+out 08 01:33:55.153880 f3-fedora fprintd[19096]: Initializing FpContext (libfprint version 1.94.6)
+out 08 01:33:55.157227 f3-fedora fprintd[19096]: Preparing devices for resume
+out 08 01:33:55.157344 f3-fedora fprintd[19096]: No driver found for USB device 1D6B:0003
+out 08 01:33:55.157384 f3-fedora fprintd[19096]: No driver found for USB device 13D3:5415
+out 08 01:33:55.157392 f3-fedora fprintd[19096]: No driver found for USB device 8087:0026
+out 08 01:33:55.157397 f3-fedora fprintd[19096]: No driver found for USB device 1D6B:0002
+out 08 01:33:55.157444 f3-fedora fprintd[19096]: Device reported probe completion
+out 08 01:33:55.157464 f3-fedora fprintd[19096]: Completing action FPI_DEVICE_ACTION_PROBE in idle!
+out 08 01:33:55.157471 f3-fedora fprintd[19096]: Not updating temperature model, device can run continuously!
+out 08 01:33:55.158466 f3-fedora fprintd[19096]: Device Goodix TLS Fingerprint Sensor 55X4 scan type changed to 'press'
+out 08 01:33:55.158474 f3-fedora fprintd[19096]: Device Goodix TLS Fingerprint Sensor 55X4 enroll stages changed to 41
+out 08 01:33:55.158481 f3-fedora fprintd[19096]: Finger present 0
+out 08 01:33:55.158484 f3-fedora fprintd[19096]: Finger needed 0
+out 08 01:33:55.158586 f3-fedora fprintd[19096]: Got delay inhibitor for sleep.
+out 08 01:33:55.158626 f3-fedora fprintd[19096]: entering main loop
+out 08 01:33:55.158791 f3-fedora fprintd[19096]: D-Bus service launched with name: net.reactivated.Fprint
+out 08 01:33:55.158847 f3-fedora systemd[1]: Started fprintd.service - Fingerprint Authentication Daemon.
+out 08 01:33:55.160656 f3-fedora fprintd[19096]: Requesting authorization from :1.310 to call method 'Claim' for device 'Goodix TLS Fingerprint Sensor 55X4'
+out 08 01:33:55.160862 f3-fedora fprintd[19096]: Getting authorization to perform Polkit action net.reactivated.fprint.device.setusername
+out 08 01:33:55.161840 f3-fedora fprintd[19096]: Getting authorization to perform Polkit action net.reactivated.fprint.device.verify
+out 08 01:33:55.162454 f3-fedora fprintd[19096]: Authorization granted to :1.310 to call method 'Claim' for device 'Goodix TLS Fingerprint Sensor 55X4'!
+out 08 01:33:55.162500 f3-fedora fprintd[19096]: user 'f360c4' claiming the device: 0
+out 08 01:33:55.270409 f3-fedora fprintd[19096]: Image device open completed
+out 08 01:33:55.270461 f3-fedora fprintd[19096]: Device reported open completion
+out 08 01:33:55.270935 f3-fedora fprintd[19096]: Completing action FPI_DEVICE_ACTION_OPEN in idle!
+out 08 01:33:55.270971 f3-fedora fprintd[19096]: Not updating temperature model, device can run continuously!
+out 08 01:33:55.271026 f3-fedora fprintd[19096]: claimed device 0
+out 08 01:33:55.272690 f3-fedora fprintd[19096]: Requesting authorization from :1.310 to call method 'EnrollStart' for device 'Goodix TLS Fingerprint Sensor 55X4'
+out 08 01:33:55.272718 f3-fedora fprintd[19096]: Getting authorization to perform Polkit action net.reactivated.fprint.device.enroll
+out 08 01:33:55.277635 f3-fedora fprintd[19096]: Authorization granted to :1.310 to call method 'EnrollStart' for device 'Goodix TLS Fingerprint Sensor 55X4'!
+out 08 01:33:55.278258 f3-fedora fprintd[19096]: file_storage_print_data_load(): loaded '/var/lib/fprint/f360c4/goodixtls55x4/0/7' Erro desconhecido -2
+out 08 01:33:55.278285 f3-fedora fprintd[19096]: start enrollment device 0 finger 7
+out 08 01:33:55.278419 f3-fedora fprintd[19096]: Not updating temperature model, device can run continuously!
+out 08 01:33:55.278749 f3-fedora fprintd[19096]: Read and NO OP
+out 08 01:33:55.278456 f3-fedora fprintd[19096]: Activating image device
+out 08 01:33:55.280598 f3-fedora fprintd[19096]: Enable Chip
+out 08 01:33:55.278476 f3-fedora fprintd[19096]: Image device internal state change from FPI_IMAGE_DEVICE_STATE_INACTIVE to FPI_IMAGE_DEVICE_STATE_ACTIVATING
+out 08 01:33:55.278504 f3-fedora fprintd[19096]: 6503558153: ../libfprint/drivers/goodixtls/goodix55x4.c:1510
+out 08 01:33:55.278539 f3-fedora fprintd[19096]: [goodixtls55x4] ACTIVATE_NUM_STATES entering state 0
+out 08 01:33:55.278754 f3-fedora fprintd[19096]: Running command: 0x00
+out 08 01:33:55.279195 f3-fedora fprintd[19096]: Completed command: 0x00
+out 08 01:33:55.279219 f3-fedora fprintd[19096]: [goodixtls55x4] ACTIVATE_NUM_STATES entering state 1
+out 08 01:33:55.279250 f3-fedora fprintd[19096]: Running command: 0x96
+out 08 01:33:55.283311 f3-fedora fprintd[19096]: Got protocol msg
+out 08 01:33:55.283361 f3-fedora fprintd[19096]: got ack
+out 08 01:33:55.283753 f3-fedora fprintd[19096]: NO OP
+out 08 01:33:55.283403 f3-fedora fprintd[19096]: 6503563031: ../libfprint/drivers/goodixtls/goodix.c:319
+out 08 01:33:55.283439 f3-fedora fprintd[19096]: Completed command: 0x96
+out 08 01:33:55.284093 f3-fedora fprintd[19096]: Checking FW
+out 08 01:33:55.283460 f3-fedora fprintd[19096]: [goodixtls55x4] ACTIVATE_NUM_STATES entering state 2
+out 08 01:33:55.283493 f3-fedora fprintd[19096]: Running command: 0x00
+out 08 01:33:55.283854 f3-fedora fprintd[19096]: Completed command: 0x00
+out 08 01:33:55.283876 f3-fedora fprintd[19096]: [goodixtls55x4] ACTIVATE_NUM_STATES entering state 3
+out 08 01:33:55.283909 f3-fedora fprintd[19096]: Running command: 0xa8
+out 08 01:33:55.287899 f3-fedora fprintd[19096]: Got protocol msg
+out 08 01:33:55.287920 f3-fedora fprintd[19096]: got ack
+out 08 01:33:55.289994 f3-fedora fprintd[19096]: Got protocol msg
+out 08 01:33:55.290244 f3-fedora fprintd[19096]: GF3268_RTSEC_APP_10062
+out 08 01:33:55.290244 f3-fedora fprintd[19096]: Checking PSK
+out 08 01:33:55.290028 f3-fedora fprintd[19096]: Completed command: 0xa8
+out 08 01:33:55.290043 f3-fedora fprintd[19096]: Device firmware: "GF3268_RTSEC_APP_10062"
+out 08 01:33:55.290081 f3-fedora fprintd[19096]: [goodixtls55x4] ACTIVATE_NUM_STATES entering state 4
+out 08 01:33:55.290102 f3-fedora fprintd[19096]: Running command: 0xe4
+out 08 01:33:55.293580 f3-fedora fprintd[19096]: Got protocol msg
+out 08 01:33:55.293600 f3-fedora fprintd[19096]: got ack
+out 08 01:33:55.297669 f3-fedora fprintd[19096]: Got protocol msg
+out 08 01:33:55.297983 f3-fedora fprintd[19096]: length: 32, offset: 1148333902, flags: -1157496825
+out 08 01:33:55.297705 f3-fedora fprintd[19096]: Completed command: 0xe4
+out 08 01:33:55.297760 f3-fedora fprintd[19096]: Device PSK: 0x4e2f72445608d1ada6639ed1887460925fd3c8a9a46926dcd7af864f1005e10c
+out 08 01:33:55.297771 f3-fedora fprintd[19096]: Device PSK flags: 0xbb020007
+out 08 01:33:55.297792 f3-fedora fprintd[19096]: [goodixtls55x4] SSM ACTIVATE_NUM_STATES failed in state 4 with error: Invalid device PSK: 0x4e2f72445608d1ada6639ed1887460925fd3c8a9a46926dcd7af864f1005e10c
+out 08 01:33:55.297806 f3-fedora fprintd[19096]: [goodixtls55x4] ACTIVATE_NUM_STATES completed with error: Invalid device PSK: 0x4e2f72445608d1ada6639ed1887460925fd3c8a9a46926dcd7af864f1005e10c
+out 08 01:33:55.297823 f3-fedora fprintd[19096]: 6503577474: ../libfprint/drivers/goodixtls/goodix55x4.c:504
+out 08 01:33:55.297836 f3-fedora fprintd[19096]: failed during activation: Invalid device PSK: 0x4e2f72445608d1ada6639ed1887460925fd3c8a9a46926dcd7af864f1005e10c (code: 35)
+out 08 01:33:55.297848 f3-fedora fprintd[19096]: Image device activation failed
+out 08 01:33:55.297864 f3-fedora fprintd[19096]: Device reported generic error (Invalid device PSK: 0x4e2f72445608d1ada6639ed1887460925fd3c8a9a46926dcd7af864f1005e10c) during action; action was: FPI_DEVICE_ACTION_IDENTIFY
+out 08 01:33:55.297876 f3-fedora fprintd[19096]: Device reported identify completion
+out 08 01:33:55.298025 f3-fedora fprintd[19096]: Completing action FPI_DEVICE_ACTION_IDENTIFY in idle!
+out 08 01:33:55.298043 f3-fedora fprintd[19096]: Not updating temperature model, device can run continuously!
+out 08 01:33:55.298209 f3-fedora fprintd[19096]: Device reported an error during identify for enroll: Invalid device PSK: 0x4e2f72445608d1ada6639ed1887460925fd3c8a9a46926dcd7af864f1005e10c
+out 08 01:33:55.300407 f3-fedora fprintd[19096]: Requesting authorization from :1.310 to call method 'EnrollStop' for device 'Goodix TLS Fingerprint Sensor 55X4'
+out 08 01:33:55.300442 f3-fedora fprintd[19096]: Authorization granted to :1.310 to call method 'EnrollStop' for device 'Goodix TLS Fingerprint Sensor 55X4'!
+out 08 01:33:55.302227 f3-fedora fprintd[19096]: Requesting authorization from :1.310 to call method 'Release' for device 'Goodix TLS Fingerprint Sensor 55X4'
+out 08 01:33:55.302263 f3-fedora fprintd[19096]: Authorization granted to :1.310 to call method 'Release' for device 'Goodix TLS Fingerprint Sensor 55X4'!
+out 08 01:33:55.302763 f3-fedora fprintd[19096]: Image device close completed
+out 08 01:33:55.302792 f3-fedora fprintd[19096]: Device reported close completion
+out 08 01:33:55.302948 f3-fedora fprintd[19096]: transfer cancelled, aborting read loop...
+out 08 01:33:55.303038 f3-fedora fprintd[19096]: Completing action FPI_DEVICE_ACTION_CLOSE in idle!
+out 08 01:33:55.303055 f3-fedora fprintd[19096]: Not updating temperature model, device can run continuously!
+out 08 01:33:55.303082 f3-fedora fprintd[19096]: released device 0

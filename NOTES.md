@@ -356,3 +356,12 @@ Evidência: `logs/phase2-fprintd-20261008-012957.log`.
   Não é o motivo de o leitor nunca ter funcionado (o libfprint stock não tem driver pro 55a4).
   Fase 5: módulo SELinux local `dontaudit`/`allow` pra silenciar, ou reportar ao
   selinux-policy do Fedora como "fprintd + opencv".
+
+### Fase 2 — fechada (2026-10-08 01:33)
+
+Evidência: `logs/phase2-enroll-20261008-013355.log`. `fprintd-enroll` → activate:
+estados 0–3 OK (nop, reset/idle…), `Device firmware: "GF3268_RTSEC_APP_10062"`,
+`Checking PSK` → `Device PSK: 0x4e2f7244…e10c`, flags `0xbb020007` →
+**`Invalid device PSK`** no estado 4. Idêntico ao hash lido pelo `probe_readonly.py`.
+Nenhuma outra falha antes da PSK. Pronto-quando da Fase 2: todos ✅.
+Próximo: Fase 4 (gravar a PSK), condicionada a `FLASH AUTORIZADO`.
