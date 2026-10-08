@@ -44,6 +44,20 @@ sudo authselect enable-feature with-fingerprint                   # 5. PAM: fing
 Each step is explained in the Portuguese guide; `DOSSIER-PSK.md` explains exactly what step 3
 writes and why it is low-risk; `NOTES.md` has the full investigation with evidence.
 
+## Debian / Ubuntu (.deb, experimental)
+
+Ubuntu 24.04 LTS, Ubuntu 26.04 LTS and Debian 13 packages are attached to the release, built in
+clean containers (`deb/build.sh`). They replace `libfprint-2-2` (and Ubuntu's `libfprint-2-tod1`);
+the distro `fprintd` keeps working. Verified in containers: clean install over the stock package,
+`fprintd` resolves every symbol against our library, driver present. **Not yet tested with the
+sensor on real Debian/Ubuntu hardware** — if it works for you, open an issue.
+
+```bash
+sudo apt install ./libfprint-goodixtls-55a4_*ubuntu2404_amd64.deb   # or ubuntu2604 / debian13
+sudo apt-mark hold libfprint-goodixtls-55a4
+# then the same probe -> pair -> enroll steps; PAM via: sudo pam-auth-update
+```
+
 ## Which firmware is your reader on?
 
 | `tools/probe_readonly.py` says | Then |
