@@ -1,13 +1,34 @@
-# Leitor de digitais Goodix 27c6:55a4 no Fedora (ThinkPad E14 Gen 1)
+# Leitor de digitais do Lenovo ThinkPad E14 Gen 1 no Linux (Fedora) — Goodix 27c6:55a4
 
-Como fazer o leitor Goodix `27c6:55a4` do ThinkPad E14 Gen 1 (machine types 20RA / 20RB)
-funcionar no Fedora: `sudo`, desbloqueio de tela e, se quiser, login — tudo com digital.
+*English summary: [README.md](README.md).*
 
-Testado em: ThinkPad E14 Gen 1 **20RB002BBR**, Fedora 44 KDE, kernel 7.2, OpenSSL 3.5,
-OpenCV 4.13, 2026-10-08. Trabalho de base: [jith/goodix-55a4-fingerprint](https://github.com/jith/goodix-55a4-fingerprint)
-(driver, testado em CachyOS num 20RA) e [goodix-fp-linux-dev](https://github.com/goodix-fp-linux-dev/goodix-fp-dump)
-(protocolo). Aqui está o empacotamento pro Fedora, uma ferramenta de pareamento **que não
-mexe no firmware**, e as notas do que foi medido.
+Seu ThinkPad E14 Gen 1 (machine type 20RA ou 20RB) tem leitor de digitais, o `lsusb` mostra
+`27c6:55a4 Goodix FingerPrint Device`, mas no Linux o `fprintd-enroll` responde
+**`No devices available`** e as configurações de "Impressão digital" do KDE/GNOME não mostram
+nada. Isso acontece porque o `libfprint` do Fedora (e de qualquer distro) **não tem driver**
+pra esse sensor — ele aparece na lista de "dispositivos não suportados".
+
+Este repositório faz o leitor funcionar no **Fedora** — `sudo`, tela de bloqueio e login por
+digital — com:
+
+- um **RPM pronto** do driver da comunidade (`goodixtls`, do
+  [jith/goodix-55a4-fingerprint](https://github.com/jith/goodix-55a4-fingerprint), feito pra
+  Arch/CachyOS): baixe em [Releases](../../releases) ou compile com `rpm/build.sh`;
+- uma ferramenta de **pareamento sem flash**: se o seu leitor já está no firmware universal
+  da Lenovo `GF32xx_RTSEC_APP_10062` (provável, se o notebook já rodou Windows com Windows
+  Update), **não precisa trocar firmware** — um único comando de 112 bytes troca a chave de
+  pareamento do Windows pela do Linux. Sem bootloader, sem apagar nada, sem o risco de
+  inutilizar o leitor que um flash de firmware tem;
+- um **probe só-leitura** que diz em que firmware, bootloader e estado de pareamento o seu
+  leitor está **antes** de você mudar qualquer coisa;
+- todos os logs e medições (`NOTES.md`), pra próxima pessoa não precisar adivinhar.
+
+Testado em 2026-10-08: ThinkPad E14 Gen 1 **20RB002BBR**, Fedora 44 KDE Plasma, kernel 7.2,
+OpenSSL 3.5, OpenCV 4.13 — cadastro 40/40 toques aceitos, verificação 3/3, `sudo` e tela de
+bloqueio por digital, senha continua funcionando, sobrevive a suspend/resume. O mesmo
+caminho de só-pareamento foi relatado funcionando num ThinkBook 15-IIL com firmware 10052 no
+Omarchy (issue #1 do jith). Trabalho de base: jith (driver) e
+[goodix-fp-linux-dev](https://github.com/goodix-fp-linux-dev/goodix-fp-dump) (protocolo).
 
 > **Leia antes.** O passo 3 escreve no sensor. É um único comando, com precedente, mas é
 > uma escrita. Entenda o que ele faz antes de rodar. Este guia é fornecido sem garantia.
@@ -28,7 +49,7 @@ que vem pelo driver Windows `r16gf09w`). Se a sua máquina já teve Windows com 
 é provável que já esteja nele — foi o caso desta. Pra saber sem escrever nada:
 
 ```bash
-git clone https://github.com/<usuario>/fingerprint-goodix-55a4-lenovo-fedora
+git clone https://github.com/f360c4/fingerprint-goodix-55a4-lenovo-fedora
 cd fingerprint-goodix-55a4-lenovo-fedora
 python3 -m venv .venv && .venv/bin/pip install pyusb
 sudo systemctl stop fprintd
@@ -154,6 +175,32 @@ funcionar. Se o alerta incomodar: `sudo dnf install selinux-policy-devel && sudo
 
 Notas completas da investigação: [`NOTES.md`](NOTES.md). Plano: [`PLAN.md`](PLAN.md).
 
+## Por que isso não está "no kernel" ou já no Fedora?
+
+Leitor de digitais no Linux **não é driver de kernel**. O kernel só expõe o dispositivo USB;
+o driver vive no **libfprint** (programa de usuário, do freedesktop.org), e o `fprintd` fala
+com ele. O libfprint oficial não aceitou driver pra família Goodix "TLS" (5110, 5503, 55a4,
+55b4…) por causa de como esses sensores funcionam: eles mandam a **imagem crua** do dedo pro
+computador dentro de uma sessão TLS, a comparação é feita no PC (o libfprint oficial prefere
+sensores que comparam no próprio chip), a solução da comunidade exige **gravar uma chave
+pública conhecida dentro do sensor**, o comparador depende do OpenCV, e protocolo e firmware
+foram obtidos por engenharia reversa. Por isso o driver só existe em *forks* (TheWeirdDev →
+jith) que substituem o `libfprint` inteiro — e por isso o Fedora não pode distribuir, e este
+repositório o empacota como RPM substituto (`Provides/Conflicts: libfprint`) com `versionlock`.
+
+O que dá pra devolver pra comunidade, e o que este repositório devolve:
+- pro **jith/goodix-55a4-fingerprint**: um segundo caso confirmado de só-pareamento (10062,
+  pareado pelo Windows, 20RB, Fedora) e a ferramenta de pareamento (issue #1);
+- pro **TheWeirdDev/libfprint**: o bug de tamanho em `goodix_send_preset_psk_write` (chave
+  truncada) e a confirmação de que o TLS funciona com a crypto-policy padrão do Fedora;
+- pro **goodix-fp-linux-dev**: o dado de um 10062 pareado pelo Windows e ferramentas de
+  leitura/pareamento que nunca chamam o caminho de erase/flash.
+
+E outras distros? O driver é o mesmo. No **Arch/CachyOS/Omarchy** use o pacote do jith. No
+**Ubuntu/Debian** não há pacote pronto; seria preciso compilar o fork (mesmas fontes e patches
+de `rpm/`) e substituir o `libfprint-2-2` do sistema — possível, mas ninguém empacotou ainda.
+A ferramenta de pareamento (`tools/`) é só Python + pyusb e funciona em qualquer distro.
+
 ## Segurança
 
 Chave de pareamento pública (toda-zero): alguém com acesso físico ao USB pode se passar pelo
@@ -167,3 +214,8 @@ Driver e patches: [jith](https://github.com/jith/goodix-55a4-fingerprint),
 [TheWeirdDev/libfprint](https://github.com/TheWeirdDev/libfprint) (fork 55b4-experimental),
 [goodix-fp-linux-dev](https://github.com/goodix-fp-linux-dev). libfprint é LGPL-2.1-or-later.
 Scripts e notas deste repositório: MIT, salvo indicação. Firmware não é redistribuído aqui.
+
+*Palavras-chave: ThinkPad E14 Gen 1 leitor de digitais Linux, 20RA, 20RB, Goodix 27c6:55a4,
+Goodix FingerPrint Device, fprintd No devices available, Invalid device PSK, libfprint
+goodixtls, Fedora impressão digital, GF3208_RTSEC_APP_10062, Lenovo biometria Linux,
+fingerprint reader Fedora.*
