@@ -473,3 +473,21 @@ contêineres (`logs/deb-build-*.log`):
 
 **Fase 6 ✅.** Projeto completo: Fedora funcionando no hardware; RPM + 3 .deb publicados;
 contribuições postadas em jith#1 e TheWeirdDev PR#3.
+
+## 2026-10-08 (manhã, cont.) — Fase 7: pacote Arch / Omarchy no nosso repo
+
+Pedido do Luiz: espelhar a parte Arch pra não depender do repo do jith. Os scripts do jith não
+têm licença explícita (só patches LGPL e flash-tool MIT) → **não copiados**; escrevi os nossos
+em `arch/` (PKGBUILD, build.sh com podman, install.sh, pacman-hook, enable-sudo.sh), MIT.
+Nada de firmware/flash no pacote nem no instalador.
+- 1ª tentativa falhou no meson: "distributor issue… glib-2.0 provider" — Arch moveu
+  glib-mkenums/gdbus-codegen pro pacote `glib2-devel`; adicionado em makedepends.
+- Build OK (`logs/arch-build.log`): `libfprint-goodixtls-55a4-1.94.6.c1937b9-1-x86_64.pkg.tar.zst`.
+- Teste de instalação em contêiner novo (`logs/arch-install-test.log`): remove `libfprint 1.94.100-1`,
+  fprintd 1.94.5-2 sem símbolos indefinidos, deps resolvem, driver 55X4 presente. Arch de hoje:
+  opencv 5.0.0-12 (`libopencv_*.so.500`), glib2 2.90.1, openssl 3.6.5. `arch/out/needed-libs.txt`
+  guarda os sonames; `install.sh` compara com `ldconfig -p` antes de usar o pré-compilado.
+- Anexado à release v0.1.0 (+ needed-libs.txt). Não testado com sensor em Arch real.
+- Luiz relata alerta SELinux a cada toque (fprintd é religado via D-Bus → OpenCV relê
+  nr_hugepages). Passei: `sudo dnf install selinux-policy-devel && sudo selinux/install.sh`
+  (dontaudit) + `sudo tools/debug-off.sh`.

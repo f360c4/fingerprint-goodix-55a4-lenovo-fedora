@@ -13,7 +13,7 @@ arch=('x86_64')
 url="https://github.com/f360c4/fingerprint-goodix-55a4-lenovo-fedora"
 license=('LGPL-2.1-or-later')
 depends=('glib2' 'libgusb' 'openssl' 'pixman' 'nss' 'libgudev' 'opencv')
-makedepends=('meson' 'ninja' 'pkgconf' 'gobject-introspection' 'gtk-doc' 'patch')
+makedepends=('meson' 'ninja' 'pkgconf' 'glib2-devel' 'gobject-introspection' 'gtk-doc' 'patch')
 optdepends=('fprintd: D-Bus daemon used by PAM and desktop settings')
 # drop-in replacement for libfprint and for the two community package names
 provides=('libfprint' 'libfprint-2.so=2-64' 'libfprint-goodixtls-55x4' 'libfprint-goodixtls-55x4-fixed')

@@ -1,0 +1,71 @@
+/home/f360c4/dev/goodix-55a4-fedora/vendor/jith-55a4/driver/upstream/libfprint-TheWeirdDev-55b4-experimental-c1937b9.tar.xz: SUCESSO
+warning: openssl-3.6.5-1 is up to date -- skipping
+../libfprint-goodixtls-55x4/libfprint/fp-device.c:1378: Warning: FPrint: invalid "closure" annotation: only valid on callback parameters
+../libfprint-goodixtls-55x4/libfprint/fp-device.c:1947: Warning: FPrint: invalid "closure" annotation: only valid on callback parameters
+../libfprint-goodixtls-55x4/libfprint/fp-device.c:1987: Warning: FPrint: invalid "closure" annotation: only valid on callback parameters
+../libfprint-goodixtls-55x4/libfprint/fp-device.h:32: Warning: FPrint: Multiple getter candidates for property 'Device:open' found, 'is_open' was chosen by a heuristic. Please annotate the property with one of the following to ensure it is consistent:
+- '(getter is_open)'
+- '(getter open)'
+../libfprint-goodixtls-55x4/libfprint/fp-image.h:48: Warning: FPrint: Couldn't find 'extract_sigfm_info_finish' for the corresponding async function: 'extract_sigfm_info'
+../libfprint-goodixtls-55x4/libfprint/fp-image.h:65: Warning: FPrint: fp_image_get_sigfm_info: return value: Unresolved type: 'SigfmImgInfo*'
+../libfprint-goodixtls-55x4/libfprint/drivers/goodixtls/goodixtls.c: In function ‘err_from_ssl’:
+../libfprint-goodixtls-55x4/libfprint/drivers/goodixtls/goodixtls.c:51:3: warning: ‘__builtin___strcpy_chk’ writing one too many bytes into a region of a size that depends on ‘strlen’ [-Wstringop-overflow=]
+   51 |   strcpy (err->message, msg);
+      |   ^
+../libfprint-goodixtls-55x4/libfprint/drivers/goodixtls/goodixtls.c:50:18: note: destination object of size [0, 9223372036854775805] allocated by ‘malloc’
+   50 |   err->message = malloc (strlen (msg));
+      |                  ^
+../libfprint-goodixtls-55x4/libfprint/drivers/goodixtls/goodixtls.c: In function ‘err_from_ssl’:
+../libfprint-goodixtls-55x4/libfprint/drivers/goodixtls/goodixtls.c:51:3: warning: ‘__builtin___strcpy_chk’ writing one too many bytes into a region of a size that depends on ‘strlen’ [-Wstringop-overflow=]
+   51 |   strcpy (err->message, msg);
+      |   ^
+../libfprint-goodixtls-55x4/libfprint/drivers/goodixtls/goodixtls.c:50:18: note: destination object of size [0, 9223372036854775805] allocated by ‘malloc’
+   50 |   err->message = malloc (strlen (msg));
+      |                  ^
+INFO: autodetecting backend as ninja
+INFO: calculating backend command to run: /usr/sbin/ninja -C /home/build/pkg/src/build
+==> Entering fakeroot environment...
+==> Starting package()...
+ninja: Entering directory `/home/build/pkg/src/build'
+ninja: no work to do.
+Installing libfprint/fp-enums.h to /home/build/pkg/pkg/libfprint-goodixtls-55a4/usr/include/libfprint-2
+Installing libfprint/libfprint-2.so.2.0.0 to /home/build/pkg/pkg/libfprint-goodixtls-55a4/usr/lib
+Installing libfprint/FPrint-2.0.gir to /home/build/pkg/pkg/libfprint-goodixtls-55a4/usr/share/gir-1.0
+Installing libfprint/FPrint-2.0.typelib to /home/build/pkg/pkg/libfprint-goodixtls-55a4/usr/lib/girepository-1.0
+Installing /home/build/pkg/src/libfprint-goodixtls-55x4/libfprint/fprint.h to /home/build/pkg/pkg/libfprint-goodixtls-55a4/usr/include/libfprint-2
+Installing /home/build/pkg/src/libfprint-goodixtls-55x4/libfprint/fp-context.h to /home/build/pkg/pkg/libfprint-goodixtls-55a4/usr/include/libfprint-2
+Installing /home/build/pkg/src/libfprint-goodixtls-55x4/libfprint/fp-device.h to /home/build/pkg/pkg/libfprint-goodixtls-55a4/usr/include/libfprint-2
+Installing /home/build/pkg/src/libfprint-goodixtls-55x4/libfprint/fp-image-device.h to /home/build/pkg/pkg/libfprint-goodixtls-55a4/usr/include/libfprint-2
+Installing /home/build/pkg/src/libfprint-goodixtls-55x4/libfprint/fp-image.h to /home/build/pkg/pkg/libfprint-goodixtls-55a4/usr/include/libfprint-2
+Installing /home/build/pkg/src/libfprint-goodixtls-55x4/libfprint/fp-print.h to /home/build/pkg/pkg/libfprint-goodixtls-55a4/usr/include/libfprint-2
+Installing /home/build/pkg/src/build/meson-private/libfprint-2.pc to /home/build/pkg/pkg/libfprint-goodixtls-55a4/usr/lib/pkgconfig
+Installing symlink pointing to libfprint-2.so.2.0.0 to /home/build/pkg/pkg/libfprint-goodixtls-55a4/usr/lib/libfprint-2.so.2
+Installing symlink pointing to libfprint-2.so.2 to /home/build/pkg/pkg/libfprint-goodixtls-55a4/usr/lib/libfprint-2.so
+==> Tidying install...
+  -> Removing libtool files...
+  -> Removing static library files...
+  -> Purging unwanted files...
+  -> Stripping unneeded symbols from binaries and libraries...
+  -> Compressing man and info pages...
+==> Checking for packaging issues...
+==> Creating package "libfprint-goodixtls-55a4"...
+  -> Generating .PKGINFO file...
+  -> Generating .BUILDINFO file...
+  -> Generating .MTREE file...
+  -> Compressing package...
+==> Creating package "libfprint-goodixtls-55a4-debug"...
+  -> Generating .PKGINFO file...
+  -> Generating .BUILDINFO file...
+  -> Generating .MTREE file...
+  -> Compressing package...
+==> Leaving fakeroot environment.
+==> Finished making: libfprint-goodixtls-55a4 1.94.6.c1937b9-1 (Thu Oct  8 13:57:41 2026)
+libfprint-goodixtls-55a4-1.94.6.c1937b9-1-x86_64.pkg.tar.zst
+libfprint-goodixtls-55a4-debug-1.94.6.c1937b9-1-x86_64.pkg.tar.zst
+---- install test
+looking for conflicting packages...
+:: libfprint-goodixtls-55a4-1.94.6.c1937b9-1 and libfprint-1.94.100-1 are in conflict. Remove libfprint? [y/N] error: unresolvable package conflicts detected
+error: failed to prepare transaction (conflicting dependencies)
+:: libfprint-goodixtls-55a4-1.94.6.c1937b9-1 and libfprint-1.94.100-1 are in conflict
+error: package 'libfprint-goodixtls-55a4' was not found
+fprintd 1.94.5-2

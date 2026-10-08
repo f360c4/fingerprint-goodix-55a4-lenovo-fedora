@@ -142,3 +142,10 @@ Rollback: a PSK do Windows não volta — irrelevante (sem Windows). Firmware fi
 pra satisfazer o `libfprint-2-2 (>= 1:1.94.9)` do fprintd; `Provides/Conflicts/Replaces`
 `libfprint-2-2` e `libfprint-2-tod1`. Testado em contêiner (instalação, símbolos do fprintd,
 deps); **não** testado com sensor real nessas distros. Anexados à release v0.1.0.
+
+## Fase 7 — Pacote Arch/Omarchy no nosso repo ✅ (2026-10-08)
+
+`arch/`: PKGBUILD próprio (provides/conflicts `libfprint`, `libfprint-goodixtls-55x4[-fixed]`),
+`build.sh` (contêiner archlinux), `install.sh` (pré-compilado se sonames batem, senão makepkg;
+instala hook do pacman), `enable-sudo.sh`. Pacote anexado à release v0.1.0. Testado em
+contêiner, não em Arch real. Jith continua creditado e linkado como alternativa.

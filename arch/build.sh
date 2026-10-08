@@ -18,16 +18,16 @@ cp "$src" "$here/PKGBUILD" "$repo"/rpm/patches/00*.patch "$work/"
 
 podman run --rm -v "$work:/work:z" -v "$here/out:/out:z" docker.io/library/archlinux:latest \
   bash -euo pipefail -c '
-    pacman -Syu --noconfirm --needed base-devel meson ninja pkgconf gobject-introspection gtk-doc \
+    pacman -Syu --noconfirm --needed base-devel meson ninja pkgconf glib2-devel gobject-introspection gtk-doc \
       glib2 libgusb openssl pixman nss libgudev opencv fprintd usbutils >/dev/null
     useradd -m build
     cp -r /work /home/build/pkg && chown -R build /home/build/pkg
     cd /home/build/pkg
-    su build -c "makepkg -f --noconfirm 2>&1 | tail -5"
+    su build -c "makepkg -f --noconfirm" 2>&1 | grep -v -E "^\s*\[[0-9]+/[0-9]+\] " | tail -60
     ls -1 *.pkg.tar.zst
     cp *.pkg.tar.zst /out/
     echo "---- install test"
-    pacman -U --noconfirm *.pkg.tar.zst 2>&1 | grep -E "installing|removing|conflict|error" || true
+    pacman -U --noconfirm --ask 4 libfprint-goodixtls-55a4-[0-9]*.pkg.tar.zst 2>&1 | grep -E "installing|removing|conflict|error" || true
     pacman -Q libfprint-goodixtls-55a4 fprintd
     ldd -r /usr/lib/fprintd 2>&1 | grep -i -E "undefined|not found" && echo "SYMBOL PROBLEM" || echo "fprintd: no undefined symbols against our libfprint"
     ldd /usr/lib/libfprint-2.so.2 | grep "not found" || echo "all libfprint deps resolve"

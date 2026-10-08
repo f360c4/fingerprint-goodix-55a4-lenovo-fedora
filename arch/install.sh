@@ -38,7 +38,7 @@ sudo -v || exit 1
 sudo pacman -S --needed --noconfirm fprintd usbutils || exit 1
 if [ "$mode" = source ]; then
   echo "== building with makepkg"
-  sudo pacman -S --needed --noconfirm --asdeps base-devel meson ninja pkgconf gobject-introspection gtk-doc || exit 1
+  sudo pacman -S --needed --noconfirm --asdeps base-devel meson ninja pkgconf glib2-devel gobject-introspection gtk-doc || exit 1
   work=$(mktemp -d); trap 'rm -rf "$work"' EXIT
   cp "$here/PKGBUILD" "$repo"/rpm/patches/00*.patch "$work/"
   tarball=libfprint-TheWeirdDev-55b4-experimental-c1937b9.tar.xz

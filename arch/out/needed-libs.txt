@@ -1,0 +1,14 @@
+libgio-2.0.so.0
+libgobject-2.0.so.0
+libglib-2.0.so.0
+libgusb.so.2
+libssl.so.3
+libcrypto.so.3
+libopencv_stitching.so.500
+libopencv_features.so.500
+libopencv_imgproc.so.500
+libopencv_core.so.500
+libstdc++.so.6
+libm.so.6
+libgcc_s.so.1
+libc.so.6
