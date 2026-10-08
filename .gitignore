@@ -5,3 +5,4 @@ dumps/*.pcapng
 build/
 rpm/_topdir/
 rpm/out/
+__pycache__/

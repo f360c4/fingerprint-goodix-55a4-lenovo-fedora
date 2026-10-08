@@ -365,3 +365,9 @@ estados 0–3 OK (nop, reset/idle…), `Device firmware: "GF3268_RTSEC_APP_10062
 **`Invalid device PSK`** no estado 4. Idêntico ao hash lido pelo `probe_readonly.py`.
 Nenhuma outra falha antes da PSK. Pronto-quando da Fase 2: todos ✅.
 Próximo: Fase 4 (gravar a PSK), condicionada a `FLASH AUTORIZADO`.
+
+### Fase 4 — autorização (2026-10-08 ~01:40)
+
+`FLASH AUTORIZADO` digitado pelo Luiz na sessão após ler o dossiê e a explicação sobre
+Windows/dual boot. Pré-condições vistas sem root: AC=1, bateria 100 %, fprintd inactive,
+sensor em bus 1 dev 3 (mesmo devnum desde o boot). Próximo: `sudo tools/run_pair_captured.sh`.
