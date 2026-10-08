@@ -2,3 +2,6 @@ vendor/
 logs/*.pcapng
 dumps/*.pcapng
 .venv/
+build/
+rpm/_topdir/
+rpm/out/

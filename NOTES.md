@@ -307,3 +307,34 @@ usada, Windows removido).
 - Fontes: https://github.com/jith/goodix-55a4-fingerprint/issues/1 ,
   https://github.com/TheWeirdDev/libfprint/pull/3 ,
   https://github.com/goodix-fp-linux-dev/goodix-fp-dump/issues/80
+
+### Fase 2 — build local (2026-10-08, ~01:15–01:30)
+
+- Snapshot `c1937b9` (sha256 `56065bce…47c5` = PKGBUILD do jith) extraído em `build/`
+  (gitignored). Patches 0001, 0002, 0008, 0010, 0011 aplicam limpos **em sequência** (0010
+  depende de 0008; o dry-run isolado de 0010 falha — não é problema).
+- `grep preset_psk_write goodix55x4.c` após os patches: **nada** → driver instalado só lê PSK.
+- `meson setup` falhou: `doctest-devel` do Fedora só tem config CMake, sem `.pc`, e cmake não
+  está instalado. Fix: **patch 0012** (`rpm/patches/0012-sigfm-optional-doctest.patch`):
+  `doctest` opcional, `sigfm-tests` só se encontrado. Mesma ideia do PR #3 do TheWeirdDev.
+- Com 0012: configura e **compila** no Fedora 44 (OpenSSL 3.5.9, opencv4 4.13.0). Só warnings.
+  `fprint-list-supported-devices` lista `27c6:55a4 Goodix TLS Fingerprint Sensor 55X4`.
+- NEEDED: glib/gio/gobject, libgusb.so.2, libssl/libcrypto.so.3, libopencv_{features2d,imgproc,core}.so.413,
+  libstdc++. (jith no Arch linka opencv 5 `.so.500` — por isso o binário dele não serve no Fedora.)
+- Instalação gera: `libfprint-2.so*`, headers `libfprint-2/`, `libfprint-2.pc`, `FPrint-2.0.{gir,typelib}`.
+  **Sem udev rules/hwdb**: `udev_rules=auto` só liga pra drivers SPI (meson.build:249), e o hwdb
+  é pulado porque systemd ≥ 248 já entrega (`/usr/lib/udev/hwdb.d/60-autosuspend-fingerprint-reader.hwdb`
+  tem `v27C6p55A4`). O pacote stock do Fedora só traz regras pra ELAN SPI. Nosso RPM não precisa de udev.
+- Pacote stock: sem scriptlets; `fprintd` depende só do soname `libfprint-2.so.2()(64bit)`,
+  não de `libfprint` por nome → `Provides/Conflicts: libfprint` basta.
+
+**Hipótese TLS/SECLEVEL testada offline** (`openssl s_server -cipher ALL` sob a crypto-policy
+do Fedora, `s_client` com cada suíte PSK isolada): `PSK-AES128-CBC-SHA`, `PSK-AES256-CBC-SHA`,
+`PSK-AES128-CBC-SHA256`, `PSK-AES128-GCM-SHA256` **negociam**; só `PSK-NULL-SHA` falha
+(eNULL fora de "ALL" — esperado). → O fix `"PSK:@SECLEVEL=0"` do PR #3 **provavelmente não
+é necessário no Fedora**; fica como contingência (patch pronto só se o handshake falhar na
+Fase 4). Ressalva: não sabemos qual suíte o sensor oferece (só saberemos na captura da Fase 4).
+
+Pendência Fase 5: `gh` não está instalado (`dnf install gh`) — necessário pra criar o repo
+público e o COPR. Luiz quer o repo público + "binário único" (RPM/COPR no Fedora; no Arch/Omarchy
+usa-se o pacote do jith — issue #1 do jith foi justamente num Omarchy).

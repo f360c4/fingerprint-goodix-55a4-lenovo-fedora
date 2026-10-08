@@ -1,0 +1,35 @@
+From 440b2fbc1a1f7c47096005c39e69ea65ea47d875 Mon Sep 17 00:00:00 2001
+From: Luiz Felipe <f360c4@gmail.com>
+Date: Thu, 8 Oct 2026 01:18:25 -0300
+Subject: [PATCH] sigfm: make doctest optional, build sigfm-tests only when
+ found
+
+Fedora's doctest-devel ships only a CMake config (no pkg-config file), so
+meson cannot find it without cmake installed. The tests binary is not
+installed anyway; skip it when doctest is absent instead of failing setup.
+---
+ libfprint/sigfm/meson.build | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
+
+diff --git a/libfprint/sigfm/meson.build b/libfprint/sigfm/meson.build
+index d94053e..a413603 100644
+--- a/libfprint/sigfm/meson.build
++++ b/libfprint/sigfm/meson.build
+@@ -8,10 +8,12 @@ endif
+ if not opencv.found()
+   opencv = dependency('opencv', required: true)
+ endif
+-doctest = dependency('doctest', required: true, version: ['>=2.0.0', '<3.0.0'])
++doctest = dependency('doctest', required: false, version: ['>=2.0.0', '<3.0.0'])
+ 
+ libsigfm = static_library('sigfm',
+         sigfm_sources,
+         dependencies: [opencv],
+ )
+-sigfm_tests = executable('sigfm-tests', ['./tests.cpp'], dependencies: [doctest, opencv], link_with: [libsigfm])
++if doctest.found()
++  sigfm_tests = executable('sigfm-tests', ['./tests.cpp'], dependencies: [doctest, opencv], link_with: [libsigfm])
++endif
+-- 
+2.56.0
+

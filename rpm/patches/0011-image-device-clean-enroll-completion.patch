@@ -1,0 +1,80 @@
+From 1c8e7b2e771e59a3f27c9dbcb8eafa2df68dc13c Mon Sep 17 00:00:00 2001
+From: Sreejith Krishnan <1450973+jith@users.noreply.github.com>
+Date: Tue, 15 Sep 2026 22:54:11 +0530
+Subject: [PATCH] image-device, print: clean enrollment completion
+
+Two warnings at the end of every enrollment:
+
+- "Deactivating image device while it is not idle": after the last stage,
+  minutiae detection finished while the finger was still on the sensor
+  (AWAIT_FINGER_OFF) and the device was deactivated right away. Now it is
+  deactivated when the driver reports the finger lifted, as for verify and
+  identify. If the finger was already lifted, nothing changes.
+- "g_object_unref: assertion 'G_IS_OBJECT (object)' failed" when saving a
+  SIGFM print: fp_print_serialize() freed its GPtrArray with
+  g_clear_object(), which also leaked the array and the serialized blobs.
+
+Co-Authored-By: Claude Opus 5 <noreply@anthropic.com>
+---
+ libfprint/fp-print.c         |  4 ++--
+ libfprint/fpi-image-device.c | 12 +++++++++---
+ 2 files changed, 11 insertions(+), 5 deletions(-)
+
+diff --git a/libfprint/fp-print.c b/libfprint/fp-print.c
+index cf1f7df..2975fda 100644
+--- a/libfprint/fp-print.c
++++ b/libfprint/fp-print.c
+@@ -681,7 +681,8 @@ fp_print_serialize (FpPrint *print,
+   g_variant_builder_open (&builder, G_VARIANT_TYPE_VARDICT);
+   g_variant_builder_close (&builder);
+ 
+-  GPtrArray * to_free = g_ptr_array_new ();
++  /* SIGFM blobs from sigfm_serialize_binary() are malloc'ed */
++  g_autoptr(GPtrArray) to_free = g_ptr_array_new_with_free_func (g_free);
+ 
+   /* Insert NBIS print data for type NBIS, otherwise the GVariant directly */
+   if (print->type == FPI_PRINT_NBIS)
+@@ -765,7 +766,6 @@ fp_print_serialize (FpPrint *print,
+ 
+   g_variant_get_data (result);
+   g_variant_store (result, (*data) + 3);
+-  g_clear_object (&to_free);
+ 
+   return TRUE;
+ }
+diff --git a/libfprint/fpi-image-device.c b/libfprint/fpi-image-device.c
+index 57924df..d6f65c7 100644
+--- a/libfprint/fpi-image-device.c
++++ b/libfprint/fpi-image-device.c
+@@ -310,7 +310,11 @@ fpi_image_device_minutiae_detected (GObject *source_object, GAsyncResult *res, g
+       if (priv->enroll_stage == fp_device_get_nr_enroll_stages (device))
+         {
+           fp_image_device_maybe_complete_action (self, g_steal_pointer (&error));
+-          fpi_image_device_deactivate (self, FALSE);
++          /* With the finger still on the sensor, deactivate once it is
++           * lifted (see fpi_image_device_report_finger_status), as for the
++           * other actions; deactivating now is "not idle". */
++          if (priv->state != FPI_IMAGE_DEVICE_STATE_AWAIT_FINGER_OFF)
++            fpi_image_device_deactivate (self, FALSE);
+         }
+       else
+         {
+@@ -468,11 +472,13 @@ fpi_image_device_report_finger_status (FpImageDevice *self,
+       /* If we are in the non-enroll case, we always deactivate.
+        *
+        * In the enroll case, the decision can only be made after minutiae
+-       * detection has finished.
++       * detection has finished. If it finished the last stage while the
++       * finger was still on, deactivation was left for this report.
+        */
+       fp_image_device_change_state (self, FPI_IMAGE_DEVICE_STATE_IDLE);
+ 
+-      if (action != FPI_DEVICE_ACTION_ENROLL)
++      if (action != FPI_DEVICE_ACTION_ENROLL ||
++          priv->enroll_stage == fp_device_get_nr_enroll_stages (device))
+         fpi_image_device_deactivate (self, FALSE);
+       else
+         fp_image_device_enroll_maybe_await_finger_on (self);
+-- 
+2.55.0
+

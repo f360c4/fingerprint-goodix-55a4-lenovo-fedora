@@ -1,0 +1,119 @@
+diff --git a/libfprint/drivers/goodixtls/goodix55x4.c b/libfprint/drivers/goodixtls/goodix55x4.c
+index 35ca2b5..93d3f2b 100644
+--- a/libfprint/drivers/goodixtls/goodix55x4.c
++++ b/libfprint/drivers/goodixtls/goodix55x4.c
+@@ -1134,7 +1134,7 @@ fpi_device_goodixtls55x4_class_init(FpiDeviceGoodixTls55X4Class *class) {
+   dev_class->scan_type = FP_SCAN_TYPE_PRESS;
+ 
+   // TODO
+-  img_dev_class->bz3_threshold = 24 * 3;
++  img_dev_class->bz3_threshold = 150; // tuned SIGFM (mutual matching) score scale
+   img_dev_class->algorithm = FPI_DEVICE_ALGO_SIGFM;
+   img_dev_class->img_width = GOODIX55X4_WIDTH;
+   img_dev_class->img_height = GOODIX55X4_HEIGHT;
+diff --git a/libfprint/sigfm/sigfm.cpp b/libfprint/sigfm/sigfm.cpp
+index a5e1cdc..48843b7 100644
+--- a/libfprint/sigfm/sigfm.cpp
++++ b/libfprint/sigfm/sigfm.cpp
+@@ -33,6 +33,7 @@
+ #include <iterator>
+ #include <sstream>
+ #include <string>
++#include <tuple>
+ 
+ #include <opencv2/opencv.hpp>
+ #include <vector>
+@@ -59,10 +60,17 @@ struct deserializer<SigfmImgInfo> : public std::true_type {
+ } // namespace bin
+ 
+ namespace {
+-constexpr auto distance_match = 0.75;
++// Tuning from AndyHazz/goodix53x5-libfprint (same 108x88 image size):
++// CLAHE before SIFT, relaxed ratio test with mutual nearest-neighbour check.
++constexpr auto distance_match = 0.85;
+ constexpr auto length_match = 0.05;
+ constexpr auto angle_match = 0.05;
+ constexpr auto min_match = 5;
++constexpr auto sift_nfeatures = 0;
++constexpr auto sift_octave_layers = 3;
++constexpr auto sift_contrast_threshold = 0.04;
++constexpr auto sift_edge_threshold = 18.0;
++constexpr auto sift_sigma = 2.0;
+ struct match {
+     cv::Point2i p1;
+     cv::Point2i p2;
+@@ -74,8 +82,8 @@ struct match {
+     }
+     bool operator<(const match& right) const
+     {
+-        return (this->p1.y < right.p1.y) ||
+-               ((this->p1.y < right.p1.y) && this->p1.x < right.p1.x);
++        return std::tie(this->p1.y, this->p1.x, this->p2.y, this->p2.x) <
++               std::tie(right.p1.y, right.p1.x, right.p2.y, right.p2.x);
+     }
+ };
+ struct angle {
+@@ -118,11 +126,17 @@ SigfmImgInfo* sigfm_extract(const SfmPix* pix, int width, int height)
+     cv::Mat img;
+     img.create(height, width, CV_8UC1);
+     std::memcpy(img.data, pix, width * height);
+-    const auto roi = cv::Mat::ones(cv::Size{img.size[1], img.size[0]}, CV_8UC1);
++    auto clahe = cv::createCLAHE(4.0, cv::Size(4, 4));
++    cv::Mat enhanced;
++    clahe->apply(img, enhanced);
++
++    const auto roi = cv::Mat::ones(cv::Size{enhanced.size[1], enhanced.size[0]}, CV_8UC1);
+     std::vector<cv::KeyPoint> pts;
+ 
+     cv::Mat descs;
+-    cv::SIFT::create()->detectAndCompute(img, roi, pts, descs);
++    cv::SIFT::create(sift_nfeatures, sift_octave_layers,
++                     sift_contrast_threshold, sift_edge_threshold, sift_sigma)
++        ->detectAndCompute(enhanced, roi, pts, descs);
+ 
+     auto* info = new SigfmImgInfo{pts, descs};
+     return info;
+@@ -134,6 +148,30 @@ int sigfm_match_score(SigfmImgInfo* frame, SigfmImgInfo* enrolled)
+         std::vector<std::vector<cv::DMatch>> points;
+         auto bfm = cv::BFMatcher::create();
+         bfm->knnMatch(frame->descriptors, enrolled->descriptors, points, 2);
++        std::vector<int> candidate_positions(enrolled->descriptors.rows, -1);
++        std::vector<int> candidate_indices;
++        cv::Mat candidate_descriptors;
++
++        for (const auto& pts : points) {
++            if (pts.size() < 2) {
++                continue;
++            }
++
++            const cv::DMatch& match_1 = pts.at(0);
++            if (match_1.distance < distance_match * pts.at(1).distance &&
++                candidate_positions[match_1.trainIdx] < 0) {
++                candidate_positions[match_1.trainIdx] = candidate_indices.size();
++                candidate_indices.push_back(match_1.trainIdx);
++                candidate_descriptors.push_back(enrolled->descriptors.row(match_1.trainIdx));
++            }
++        }
++
++        if (candidate_indices.size() < min_match) {
++            return 0;
++        }
++
++        std::vector<std::vector<cv::DMatch>> backward;
++        bfm->knnMatch(candidate_descriptors, frame->descriptors, backward, 1);
+         std::set<match> matches_unique;
+         int nb_matched = 0;
+         for (const auto& pts : points) {
+@@ -142,6 +180,12 @@ int sigfm_match_score(SigfmImgInfo* frame, SigfmImgInfo* enrolled)
+             }
+             const cv::DMatch& match_1 = pts.at(0);
+             if (match_1.distance < distance_match * pts.at(1).distance) {
++                const int candidate_position = candidate_positions[match_1.trainIdx];
++                if (candidate_position < 0 || backward[candidate_position].empty() ||
++                    backward[candidate_position][0].trainIdx != match_1.queryIdx) {
++                    continue;
++                }
++
+                 matches_unique.emplace(
+                     match{frame->keypoints.at(match_1.queryIdx).pt,
+                           enrolled->keypoints.at(match_1.trainIdx).pt});
