@@ -1,0 +1,17 @@
+bus 1 addr 3 (/dev/bus/usb/001/003), log logs/probe-20261008-005703.log
+device bus 1 addr 3, ep_out 0x1 ep_in 0x82
+[drain_stale_replies]
+  -> 0
+[nop]
+  -> None
+[firmware_version]
+  -> GF3268_RTSEC_APP_10062
+[iap_version]
+  -> MILAN_RTSEC_IAP_10027
+[psk_hash]
+  -> {'status': '0x00', 'flags': '0xbb020007', 'pmk_hash': '4e2f72445608d1ada6639ed1887460925fd3c8a9a46926dcd7af864f1005e10c', 'is_zero_psk': False}
+[otp]
+  -> {'raw': '08a6064b502cf7e5e82942a9020408dec20c925b0a94c73806000000c0bc7b44', 'sha256': 'f2a66d698e38de518f3a36e701580eae6c06269a52c1557eb49e39b498676952', 'decoded': {'length': 32, 'byte_0x16': '0xc7', 'byte_0x17': '0x38', 'calibration_valid': True, 'tcode': '0xd0', 'fdt_delta': '0x17', 'image_tcode_jith_default': '0x70', 'byte_0x11': '0x0c', 'fdt_offset': 0}}
+saved /home/f360c4/dev/goodix-55a4-fedora/dumps/probe-20261008-005703.json
+firmware: GF3268_RTSEC_APP_10062 (NOT GF3208_RTSEC_APP_10039)
+iap:      MILAN_RTSEC_IAP_10027 (as expected)

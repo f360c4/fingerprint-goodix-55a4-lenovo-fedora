@@ -158,3 +158,64 @@ Whitelist rígida no transporte (qualquer outro opcode → exceção antes de to
 Frames que serão enviados:
 `a00800a80005000000000088` (nop), `a00600a6a803000000ff` (fw), `a00600a6f60300190098` (iap),
 `a00c00ace40900070002bb00000000f9` (psk hash), `a00600a6a60300000001` (otp).
+
+### Fase 1.2 — Resultado do probe (2026-10-08 00:57)
+
+Evidência: `dumps/probe-20261008-005703.json`, `dumps/probe-20261008-005703.pcapng`,
+`logs/probe-20261008-005703.log`, `logs/probe-20261008-005703-out-frames.txt`, `logs/lsusb-v.txt`.
+
+**A captura usbmon confirma o que foi enviado:** 5 bulk OUT (exatamente os 5 frames da whitelist),
+e no controle só requests padrão de leitura (GET_STATUS, 3× GET_DESCRIPTOR). Nenhum
+SET_CONFIGURATION, nenhum outro comando. Probe terminou sem erro, sem retries.
+
+| Campo | Lido | Esperado (PLAN) |
+|---|---|---|
+| Firmware (0xa8) | **`GF3268_RTSEC_APP_10062`** | `GF3208_RTSEC_APP_10039` ❗ |
+| IAP (0xf6) | `MILAN_RTSEC_IAP_10027` (resposta traz 4 bytes extras após o NUL: `c7b93601`, sem significado conhecido) | ✅ |
+| PSK hash (0xe4, flags 0xbb020007) | status 0x00, flags `0xbb020007`, len 32, `4e2f72445608d1ada6639ed1887460925fd3c8a9a46926dcd7af864f1005e10c` | ≠ `PMK_HASH` da PSK zero → **PSK não é a do Linux** |
+| OTP (0xa6), 32 B | `08a6064b502cf7e5e82942a9020408dec20c925b0a94c73806000000c0bc7b44` | |
+
+OTP decodificado (fórmula do patch 0010 do jith / `Wbdi.dll`):
+- byte 0x16 = `0xc7`, 0x17 = `0x38` → soma 0xff → **calibração válida**
+- **tcode = 0xd0** (unidade do jith: 0xf0); image tcode default do jith (3/5) = **0x70**
+- **FDT delta = 0x17**
+- byte 0x11 = `0x0c` → **FDT offset = 0**
+- O OTP lido sem `reset` prévio veio com tamanho e checksum corretos.
+
+#### Interpretação
+
+1. **O sensor já está no firmware universal Lenovo 10062.** Não é o 10039 de fábrica.
+   O prefixo `GF3268` é o mesmo que o jith mostra no README como saída OK
+   (`Device firmware: "GF3268_RTSEC_APP_10062"`); o universal reporta a variante detectada.
+2. **A PSK não é zero** → quem gravou por último foi o Windows, não uma ferramenta Linux
+   (todas as ferramentas da comunidade gravam a PSK zero). **[HIPÓTESE]** forte: a instalação
+   Windows de fábrica recebeu o driver Lenovo (`r16gf09w` ou parecido) por Windows Update/Vantage,
+   que atualizou 10039 → 10062 pelo IAP e pareou com uma PSK própria. Que o firmware veio pelo
+   driver Windows é inferência; não há registro do histórico desta unidade.
+3. Fórmula do PMK hash: `sha256(pmk)`, `pmk = sha256((len‖psk)×2)` e `sha256(psk)` **não**
+   reproduzem o `PMK_HASH` conhecido da PSK zero → a derivação do hash não está no código que
+   temos. Aberto (Fase 3/H2: procurar no `Wbdi.dll`). Se descoberta, o hash lido vira um oráculo
+   offline pra testar PSKs candidatas sem tocar no sensor.
+
+#### ⚠️ Armadilha descoberta (importante pra Fase 4)
+
+O `driver_5503.py` **upstream** usa `WORKING_FIRMWARE = "GF32[0,5]8_RTSEC_APP_10062"`, que **não**
+casa com `GF3268_…_10062`. Rodando `run_5503.py` neste sensor, `main()` cairia em
+`VALID_FIRMWARE` → **`erase_firmware` de um 10062 perfeitamente bom**. O `flash_55a4_universal.py`
+do jith sobrescreve para `GF32[0-9]{2}_…_10062` e, no nosso estado, seguiria por
+`write_psk` (só a PSK) + `run_driver`, sem flash. Mesmo assim: **não usar `main()` de nenhum
+dos dois**; se chegarmos à Fase 4, a ferramenta deve ser nossa e chamar só `preset_psk_write`
++ `check_psk`.
+
+#### Consequência para o plano
+
+- Caminho de **firmware** (10039 → 10062): **desnecessário**. Nada de erase/IAP/write_firmware.
+- O que falta é só a **PSK**: H1 do PLAN vira o caminho principal (0xe0 com a app 10062
+  rodando, exatamente o ramo `WORKING_FIRMWARE and not valid_psk` do `main()`).
+  **[HIPÓTESE]** a app 10062 aceita sobrescrever uma PSK do Windows via 0xe0: o código
+  pressupõe que sim, mas o jith só documenta o caminho com IAP (10041 → 10062).
+- **H2** (recuperar a PSK do Windows): o Windows que pareou *este* sensor não existe mais
+  (máquina sem Windows). A máquina do irmão tem outro sensor e outra PSK → não serve para
+  recuperar a nossa, **a menos que** a PSK seja derivada de forma determinística de algo
+  do próprio sensor (**[HIPÓTESE]**, só verificável analisando o `Wbdi.dll`). Esse é o único
+  caminho conhecido que dispensa qualquer escrita.
