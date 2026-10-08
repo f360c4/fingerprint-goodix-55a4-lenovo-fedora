@@ -1,0 +1,22 @@
+#!/usr/bin/make -f
+export DEB_BUILD_MAINT_OPTIONS = hardening=+all
+
+%:
+	dh $@ --buildsystem=meson
+
+override_dh_auto_configure:
+	dh_auto_configure -- \
+		-Ddoc=false \
+		-Dgtk-examples=false \
+		-Dinstalled-tests=false \
+		-Dudev_rules=disabled \
+		-Dudev_hwdb=disabled
+
+# upstream tests need the sensor / full GI stack; the sigfm tests are skipped
+# when doctest is absent (patch 0012)
+override_dh_auto_test:
+
+# this is a drop-in replacement for libfprint-2-2: the shlibs entry must point
+# dependents at our package name
+override_dh_makeshlibs:
+	dh_makeshlibs -V 'libfprint-goodixtls-55a4 (>= 1:1.94.9)'

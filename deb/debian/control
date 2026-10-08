@@ -1,0 +1,55 @@
+Source: libfprint-goodixtls-55a4
+Section: libs
+Priority: optional
+Maintainer: Luiz Felipe <f360c4@gmail.com>
+Build-Depends: debhelper-compat (= 13),
+               meson (>= 0.56.0),
+               ninja-build,
+               pkgconf,
+               libglib2.0-dev (>= 2.68),
+               libgusb-dev (>= 0.2.0),
+               libgudev-1.0-dev,
+               libudev-dev,
+               libssl-dev,
+               libopencv-dev,
+               libpixman-1-dev,
+               libnss3-dev,
+               libgirepository1.0-dev,
+               gobject-introspection,
+               gtk-doc-tools
+Standards-Version: 4.6.2
+Homepage: https://github.com/f360c4/fingerprint-goodix-55a4-lenovo-fedora
+Rules-Requires-Root: no
+
+Package: libfprint-goodixtls-55a4
+Architecture: amd64
+Multi-Arch: same
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Provides: libfprint-2-2 (= ${binary:Version}), libfprint-2-tod1 (= ${binary:Version})
+Conflicts: libfprint-2-2, libfprint-2-tod1
+Replaces: libfprint-2-2, libfprint-2-tod1
+Description: libfprint with the goodixtls driver for the Goodix 27c6:55a4 reader
+ libfprint 1.94.6 from the TheWeirdDev 55b4-experimental fork with the goodixtls
+ driver and the SIGFM (OpenCV) matcher, plus the patches from
+ jith/goodix-55a4-fingerprint implementing the Windows-driver capture flow for
+ the Goodix 27c6:55a4 fingerprint reader (Lenovo ThinkPad E14 Gen 1) running
+ Lenovo's universal firmware GF32xx_RTSEC_APP_10062.
+ .
+ This package REPLACES the distribution libfprint (libfprint-2-2 / Ubuntu's
+ libfprint-2-tod1): same soname libfprint-2.so.2, fprintd keeps working. The
+ version number is chosen so that the distribution fprintd's dependency is
+ satisfied; the actual upstream base is libfprint 1.94.6.
+ .
+ The reader must be paired with the community Linux PSK first (see the project
+ README); the driver itself never writes to the sensor.
+
+Package: libfprint-goodixtls-55a4-dev
+Section: libdevel
+Architecture: amd64
+Depends: libfprint-goodixtls-55a4 (= ${binary:Version}), ${misc:Depends}
+Provides: libfprint-2-dev (= ${binary:Version})
+Conflicts: libfprint-2-dev
+Replaces: libfprint-2-dev
+Description: development files for libfprint-goodixtls-55a4
+ Headers, pkg-config file and GObject introspection data for the patched
+ libfprint shipped by libfprint-goodixtls-55a4.

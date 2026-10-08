@@ -6,3 +6,5 @@ build/
 rpm/_topdir/
 rpm/out/
 __pycache__/
+deb/_work/
+deb/out/
