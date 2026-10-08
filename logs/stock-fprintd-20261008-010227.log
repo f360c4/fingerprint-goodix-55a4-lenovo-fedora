@@ -1,0 +1,19 @@
+== bus 1 addr 3
+== fprintd-list f360c4
+No devices available
+(exit 1)
+== fprintd-verify f360c4
+Impossible to verify: GDBus.Error:net.reactivated.Fprint.Error.NoSuchDevice: No devices available
+(exit 1)
+== journalctl -u fprintd
+out 08 01:02:29 f3-fedora systemd[1]: Starting fprintd.service - Fingerprint Authentication Daemon...
+out 08 01:02:29 f3-fedora systemd[1]: Started fprintd.service - Fingerprint Authentication Daemon.
+== frames to/from sensor: 8
+1	0x02	0x80	'S'	0	0
+2	0x02	0x80	'C'		2
+3	0x02	0x80	'S'	6	0
+4	0x02	0x80	'C'		18
+5	0x02	0x80	'S'	6	0
+6	0x02	0x80	'C'		9
+7	0x02	0x80	'S'	6	0
+8	0x02	0x80	'C'		32

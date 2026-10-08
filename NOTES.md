@@ -14,12 +14,12 @@ Regra da sessão: nada que escreva no sensor. `FLASH AUTORIZADO` **não** foi da
 - [x] F0: `lsusb` mostra 27c6:55a4
 - [x] F0: três repositórios clonados em `vendor/` (no `.gitignore`)
 - [x] F0: venv Python do projeto (`.venv/`, no `.gitignore`)
-- [ ] F0: pacotes de build (`dnf install`) — precisa sudo do Luiz
-- [ ] F0: `sudo lsusb -v` → `logs/lsusb-v.txt` — precisa sudo
+- [x] F0: pacotes de build (`dnf install`) — rodado pelo Luiz
+- [x] F0: `sudo lsusb -v` → `logs/lsusb-v.txt`
 - [x] F1.1: auditoria leitura/escrita do goodix-fp-dump e do flash-tool do jith
-- [ ] F1.2: `tools/probe_readonly.py` escrito e rodado → `dumps/probe-*.json`
-- [ ] F1.3: captura usbmon do fprintd de estoque
-- [ ] F1.4: re-enumeração após suspend
+- [x] F1.2: `tools/probe_readonly.py` escrito e rodado → `dumps/probe-20261008-005703.json`
+- [x] F1.3: captura usbmon do fprintd de estoque
+- [x] F1.4: re-enumeração após suspend (1 teste)
 
 ### Fase 0 — inventário
 
@@ -219,3 +219,38 @@ dos dois**; se chegarmos à Fase 4, a ferramenta deve ser nossa e chamar só `pr
   recuperar a nossa, **a menos que** a PSK seja derivada de forma determinística de algo
   do próprio sensor (**[HIPÓTESE]**, só verificável analisando o `Wbdi.dll`). Esse é o único
   caminho conhecido que dispensa qualquer escrita.
+
+### Fase 1.3 — fprintd de estoque (baseline)
+
+Evidência: `logs/stock-fprintd-20261008-010227.log`, `dumps/stock-fprintd-20261008-010227.pcapng`.
+
+- `fprintd-list` → `No devices available`; `fprintd-verify` → `NoSuchDevice`. O journal do
+  fprintd só mostra start.
+- A libfprint 1.94.100 do Fedora lista `usb:v27C6p55A4*` em **"Known unsupported devices"**
+  (`/usr/lib/udev/hwdb.d/60-autosuspend-libfprint-2.hwdb:532`). Na prática só serve pra
+  habilitar autosuspend (`power/control = auto`, delay 2000 ms).
+- Tráfego pro sensor: **nenhum bulk**. Só 8 frames de controle padrão (GET_STATUS +
+  3× GET_DESCRIPTOR), a **mesma** sequência que aparece no início da captura do probe.
+  Origem não atribuída: a libgusb/pyusb abrindo o device, ou outro processo do sistema
+  enumerando. São requests padrão de leitura.
+
+### Fase 1.4 — Suspend
+
+- Antes: `1-9`, devnum 3, enumerado em 20:45:29.
+- Suspend `PM: suspend entry (deep)` → S3, `PM: suspend exit` às 01:03:00.
+- Depois: `1-9` continua **devnum 3**, sem mensagem `new high-speed USB device` no kernel
+  log → **não re-enumerou neste teste**. É um teste único e curto: o jith relata
+  re-enumeração com o driver dele ativo (sensor em modo FDT/sleep); pode depender do
+  estado do MCU antes do suspend. Repetir na Fase 2/5 com o driver carregado.
+- Não chequei se o sensor responde a comandos depois do resume (exigiria outro probe).
+
+### Status da Fase 1: concluída
+
+Pronto-quando do PLAN:
+- [x] tabela leitura/escrita em NOTES.md
+- [x] `dumps/probe-*.json` com firmware, bootloader, OTP
+- [x] sabemos o firmware: **10062** (não 10039 nem 10041)
+
+Próximo: Fase 2 (RPM do libfprint patcheado; esperado parar em `Invalid device PSK` — agora
+com o firmware certo, essa vai ser a **única** barreira). A Fase 3 precisa ser re-escopada:
+o flash de firmware saiu do caminho e H1 (só PSK) virou o caminho principal.
