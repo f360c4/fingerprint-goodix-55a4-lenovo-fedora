@@ -14,6 +14,8 @@ makes that reader work on **Fedora** (sudo, screen lock, login via `fprintd`/PAM
   `GF32xx_RTSEC_APP_10062` (likely, if the laptop ever ran Windows with Windows Update), **no
   firmware flash is needed** — one 112-byte command replaces the Windows pairing key (PSK)
   with the Linux one. No bootloader, no erase, no brick risk from a firmware write;
+- **Debian/Ubuntu `.deb`** packages (Ubuntu 24.04/26.04, Debian 13) built in clean containers —
+  experimental until someone confirms on real hardware (see the Portuguese guide);
 - a **read-only probe** that tells you which firmware, bootloader and pairing state your
   reader is in before you change anything;
 - the measured results and every log (NOTES.md), so the next person does not have to guess.

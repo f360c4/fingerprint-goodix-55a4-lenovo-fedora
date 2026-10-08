@@ -156,6 +156,29 @@ cd goodix-55a4-fingerprint
 Se por acaso aparecer `Invalid device PSK`, é porque algo re-pareou o sensor (Windows);
 aí rode o `tools/pair_psk.py` deste repositório — é só Python e funciona em qualquer distro.
 
+## Debian e Ubuntu (.deb) — experimental
+
+O mesmo driver, empacotado como `.deb` pra **Ubuntu 24.04 LTS**, **Ubuntu 26.04 LTS** e
+**Debian 13**, construído em contêineres limpos de cada distro (`deb/build.sh`). O pacote
+substitui o `libfprint-2-2` (e o `libfprint-2-tod1` do Ubuntu); o `fprintd` continua o mesmo.
+
+```bash
+# baixe o .deb da sua distro em Releases, depois:
+sudo apt install ./libfprint-goodixtls-55a4_*~ubuntu2404_amd64.deb   # ou ~ubuntu2604 / ~debian13
+sudo apt-mark hold libfprint-goodixtls-55a4
+```
+
+Os passos de probe, pareamento e cadastro são os mesmos (`tools/` é só Python + pyusb:
+`sudo apt install python3-venv python3-usb`). PAM no Ubuntu/Debian: `sudo pam-auth-update`
+e marque "Fingerprint authentication" (fica como `sufficient`, senha continua).
+
+**Honestidade sobre o teste:** eu não tenho Ubuntu nem Debian instalados num notebook com
+esse sensor. O que foi verificado, dentro do contêiner de cada distro: o pacote instala por
+cima do `libfprint` oficial sem conflito, o `fprintd` da distro resolve todos os símbolos
+contra a nossa biblioteca, a biblioteca carrega e contém o driver `goodixtls55x4`. Falta
+alguém confirmar com o sensor de verdade — se for você, abra uma issue dizendo que funcionou
+(ou não) e eu tiro o "experimental".
+
 ## Depois de updates do sistema
 
 ```bash

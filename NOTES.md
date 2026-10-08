@@ -439,3 +439,22 @@ Nome do repo escolhido pelo Luiz: `fingerprint-goodix-55a4-lenovo-fedora`.
 - TheWeirdDev/libfprint PR #3: https://github.com/TheWeirdDev/libfprint/pull/3#issuecomment-6060190177
 - README.pt-BR ganhou seção "Omarchy / Arch": usar `scripts/install.sh` + `enroll.sh` do jith,
   pular o flash; sensor já pareado. COPR descartado (Release no GitHub cumpre o papel).
+
+## 2026-10-08 (manhã) — Fase 6: pacotes .deb
+
+Pedido do Luiz: `.deb` pra Debian/Ubuntu "no meu repo apenas". Empacotamento Debian em `deb/`
+(control/rules/install/copyright + `build.sh` que roda podman por imagem). Fatos levantados nos
+contêineres (`logs/deb-build-*.log`):
+- Ubuntu 24.04: fprintd 1.94.3 exige `libfprint-2-2 (>= 1:1.94.1)`; a lib real está em
+  `libfprint-2-tod1` 1:1.94.7 (libfprint-2-2 é shim que depende do tod1). opencv 4.6, glib 2.80.
+- Ubuntu 26.04: fprintd 1.94.5 exige `libfprint-2-2 (>= 1:1.94.9)`; tod1 1:1.95.1; opencv 4.10, glib 2.88.
+- Debian 13: fprintd 1.94.5 exige `libfprint-2-2 (>= 1:1.94.9)`; libfprint-2-2 1:1.94.9; opencv 4.10.
+→ Versão do pacote `1:1.94.9+goodix55a4.1.94.6.c1937b9-1~<distro>` (satisfaz o `>=` do fprintd;
+  o "+goodix…1.94.6" documenta a base real). `Provides/Conflicts/Replaces: libfprint-2-2,
+  libfprint-2-tod1`. Formato `3.0 (native)`, patches aplicados antes do `dpkg-buildpackage -b`.
+- Primeira rodada do Ubuntu 24.04 compilou e instalou, mas o script morreu num `ls` com
+  `set -e` antes de copiar os .deb (contêiner `--rm` → perdidos). Corrigido: cópia logo após o
+  build, testes com `set +e`.
+- **Debian 13 ✅**: build OK; instala removendo `libfprint-2-2 1:1.94.9-1`; `ldd -r` do
+  `/usr/libexec/fprintd` sem símbolos indefinidos; deps resolvem; lib contém
+  `FpiDeviceGoodixTls55X4`; NEEDED opencv `.so.410`. Não testado com sensor real (sem Debian aqui).
