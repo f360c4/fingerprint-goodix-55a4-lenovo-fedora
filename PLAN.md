@@ -36,7 +36,7 @@ Precedentes achados na pesquisa (detalhe em NOTES.md):
 
 ---
 
-## Fase 2 — Pipeline do driver (sem risco)
+## Fase 2 — Pipeline do driver ✅ (2026-10-08 01:33 — parou em `Invalid device PSK`, como previsto)
 
 Objetivo: libfprint patcheado instalado como RPM, driver lendo `GF3268_RTSEC_APP_10062` e
 parando em `Invalid device PSK`. Com o firmware certo, essa deve ser a **única** barreira.
@@ -69,7 +69,7 @@ Pronto quando:
 
 ---
 
-## Fase 3 — Preparação da gravação da PSK (sem escrita)
+## Fase 3 — Preparação da gravação da PSK ✅ (pair_psk.py + DOSSIER-PSK.md)
 
 Objetivo: ferramenta auditada e dossiê, pra Fase 4 ser um passo único e curto.
 
@@ -101,7 +101,7 @@ Pronto quando:
 
 ---
 
-## Fase 4 — Gravar a PSK (ÚNICO passo que escreve no sensor)
+## Fase 4 — Gravar a PSK ✅ (2026-10-08 01:41 — `SUCCESS`, hash = PSK zero, firmware intacto)
 
 Só começa depois do dossiê lido e `FLASH AUTORIZADO` digitado na sessão.
 
@@ -120,7 +120,7 @@ Rollback: a PSK do Windows não volta — irrelevante (sem Windows). Firmware fi
 
 ---
 
-## Fase 5 — Entrega
+## Fase 5 — Entrega (em andamento: enroll 40/40 e verify 3/3 feitos; TLS OK sem patch)
 
 1. Enroll com `vendor/jith-55a4/scripts/enroll.sh` adaptado (sem pacman); 40 presses.
 2. `fprintd-verify` ×10; registrar taxa e scores SIGFM. Tuning (tcode do nosso OTP é 0xd0,

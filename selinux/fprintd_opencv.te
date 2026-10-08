@@ -1,0 +1,15 @@
+policy_module(fprintd_opencv, 1.0)
+
+# The SIGFM matcher in libfprint-goodixtls-55a4 links OpenCV, which probes
+# /proc/sys/vm/nr_hugepages at startup. SELinux denies the read (fprintd_t ->
+# sysctl_vm_t) and OpenCV silently falls back; this only silences the alert.
+#   avc: denied { read } for comm="fprintd" name="nr_hugepages"
+#        scontext=system_u:system_r:fprintd_t:s0 tcontext=system_u:object_r:sysctl_vm_t:s0
+
+require {
+    type fprintd_t;
+    type sysctl_vm_t;
+    class file read;
+}
+
+dontaudit fprintd_t sysctl_vm_t:file read;
