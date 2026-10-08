@@ -384,3 +384,18 @@ Evidência: `logs/pair-20261008-014143.log`, `dumps/pair-20261008-014143.json`,
 - Probe depois: firmware, IAP e OTP idênticos aos de antes.
 - **Confirma a hipótese H1 neste sensor: a app 10062 aceita 0xe0 sobrescrevendo uma PSK do
   Windows, sem IAP.** Terceiro relato público (jith#1, PR#3, este), primeiro em 10062 Windows-paired.
+
+### Fase 5 — enroll + verify ✅ (2026-10-08 01:45)
+
+Evidência: `logs/phase5-enroll-verify-20261008-014748.log` (journal do fprintd).
+
+- **TLS abriu com o fork sem patch de cipher** (`"ALL"` + crypto-policies SECLEVEL=2 do Fedora):
+  `Got TLS msg`/`Got TLS data msg` normais, nenhuma falha de handshake.
+  → **Hipótese "precisa de PSK:@SECLEVEL=0 no Fedora" REFUTADA** neste sensor/firmware.
+  Patch 0012-TLS descartado.
+- Enroll guiado (`tools/enroll.sh`, indicador direito): **40/40 estágios**, `Enrollment completed`.
+- `fprintd-verify` ×3: **3/3 verify-match**, scores SIGFM 4 533 823 / 2 152 551 / 213 914
+  (threshold 200).
+- Qualidade de imagem com a calibração OTP deste sensor (tcode 0xd0 → image 0x70):
+  valley depth 0,27–0,54 e ridge score 33–66 — acima dos gates (0,18 / 12) e acima do que o
+  jith relata na unidade dele (0,19–0,31). Nenhum ajuste de tuning necessário por enquanto.
