@@ -399,3 +399,13 @@ Evidência: `logs/phase5-enroll-verify-20261008-014748.log` (journal do fprintd)
 - Qualidade de imagem com a calibração OTP deste sensor (tcode 0xd0 → image 0x70):
   valley depth 0,27–0,54 e ridge score 33–66 — acima dos gates (0,18 / 12) e acima do que o
   jith relata na unidade dele (0,19–0,31). Nenhum ajuste de tuning necessário por enquanto.
+
+### Fase 5 — PAM (2026-10-08 ~01:50)
+
+`authselect current` agora lista `with-fingerprint` (não habilitado por mim; apareceu entre
+01:45 e 01:50 — Luiz ou o KCM de usuários do KDE). `/etc/authselect/system-auth` linha 8:
+`auth sufficient pam_fprintd.so` antes do `pam_unix.so` → regra 4 (sufficient, senha mantida) OK.
+`sudo` inclui system-auth → digital no sudo. KDE lockscreen usa `password-auth` (sem fprintd)
++ `/etc/pam.d/kde-fingerprint` (Plasma usa em paralelo). Não há `/etc/pam.d/sddm` nesta
+instalação (grep vazio) — login gráfico não foi configurado por nós; a verificar o que o
+Fedora 44 KDE usa como greeter. `authselect check`: configuração válida.
