@@ -13,7 +13,11 @@ bat=$(cat /sys/class/power_supply/BAT*/capacity 2>/dev/null | head -1 || echo "?
 echo "AC online: $ac  battery: $bat%"
 [ "$ac" = "1" ] || { echo "ABORT: AC not connected"; exit 1; }
 [ "${bat:-0}" -ge 50 ] 2>/dev/null || { echo "ABORT: battery < 50%"; exit 1; }
-if systemctl is-active --quiet fprintd; then echo "ABORT: fprintd active (systemctl stop fprintd)"; exit 1; fi
+# fprintd is D-Bus activated and may wake up at any time; stop it now and make
+# sure nothing holds the device afterwards.
+systemctl stop fprintd 2>/dev/null || true
+sleep 1
+if systemctl is-active --quiet fprintd; then echo "ABORT: fprintd still active"; exit 1; fi
 
 sysdev=$(grep -l '^27c6$' /sys/bus/usb/devices/*/idVendor | xargs -n1 dirname |
   while read -r d; do [ "$(cat "$d/idProduct")" = 55a4 ] && echo "$d"; done | head -1)
