@@ -1,0 +1,16 @@
+[Trigger]
+Operation = Install
+Operation = Upgrade
+Type = Package
+Target = opencv
+Target = glib2
+Target = openssl
+Target = libgusb
+Target = libfprint
+Target = libfprint-goodixtls-55a4
+Target = fprintd
+
+[Action]
+Description = Checking that the Goodix 55a4 libfprint still loads...
+When = PostTransaction
+Exec = /usr/local/libexec/goodix-55a4-libfprint-check.sh

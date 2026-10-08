@@ -138,23 +138,29 @@ sudo authselect enable-feature with-fingerprint
 Isso adiciona `pam_fprintd.so` como **`sufficient`**: a senha continua funcionando sempre
 (Enter sem dedo → cai na senha). Vale pra `sudo`, desbloqueio do KDE e também pro login do SDDM.
 
-## E se eu trocar de distro (Omarchy / Arch)?
+## Arch, CachyOS e Omarchy (pacman)
 
-A chave de pareamento fica **no sensor**, não no sistema. Depois do passo 3, qualquer distro
-com o driver funciona, sem parear de novo. No Omarchy, CachyOS ou Arch use direto o pacote do
-jith (é pra pacman):
+A chave de pareamento fica **no sensor**, não no sistema: depois do passo 3, qualquer distro com
+o driver funciona, sem parear de novo. Pra distros Arch este repositório traz o pacote
+(`arch/`), construído num contêiner Arch limpo e anexado em Releases, mais um instalador:
 
 ```bash
-git clone https://github.com/jith/goodix-55a4-fingerprint
-cd goodix-55a4-fingerprint
-./scripts/install.sh      # instala o libfprint patcheado (pacote pronto ou compila); não flasha nada
-./scripts/enroll.sh       # cadastra a digital
-./scripts/enable-sudo.sh  # PAM do sudo (no Omarchy, o próprio setup de fingerprint dele também serve)
+git clone https://github.com/f360c4/fingerprint-goodix-55a4-lenovo-fedora
+cd fingerprint-goodix-55a4-lenovo-fedora
+# opcional: baixe o .pkg.tar.zst de Releases pra arch/out/ pra não compilar
+arch/install.sh          # instala o driver (pré-compilado se as libs batem, senão makepkg) + hook do pacman
+tools/enroll.sh          # cadastra a digital
+arch/enable-sudo.sh      # sudo por digital (no Omarchy, o setup de fingerprint dele também serve)
 ```
 
-**Pule** o `firmware/flash-firmware.sh` dele: seu sensor já está no 10062 e já pareado.
-Se por acaso aparecer `Invalid device PSK`, é porque algo re-pareou o sensor (Windows);
-aí rode o `tools/pair_psk.py` deste repositório — é só Python e funciona em qualquer distro.
+O pacote substitui o `libfprint` do Arch e também os nomes `libfprint-goodixtls-55x4` /
+`libfprint-goodixtls-55x4-fixed` (AUR e jith), então troca limpa se você já tinha um deles.
+Como o Arch é *rolling*, um update de `opencv`/`glib2`/`openssl` pode trocar o soname e o
+pré-compilado para de carregar: o hook avisa, e `arch/install.sh --source` recompila. Sem
+firmware, sem flash — se o `fprintd` logar `Invalid device PSK`, é só o pareamento (passo 3).
+
+Alternativa: o repositório do [jith](https://github.com/jith/goodix-55a4-fingerprint) tem o
+mesmo driver empacotado pra Arch (foi a base deste trabalho).
 
 ## Debian e Ubuntu (.deb) — experimental
 

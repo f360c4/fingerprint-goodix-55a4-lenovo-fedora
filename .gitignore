@@ -8,3 +8,5 @@ rpm/out/
 __pycache__/
 deb/_work/
 deb/out/
+arch/_work/
+arch/out/*.pkg.tar.zst

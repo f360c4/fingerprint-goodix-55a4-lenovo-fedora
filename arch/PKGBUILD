@@ -1,0 +1,53 @@
+# Maintainer: Luiz Felipe <f360c4@gmail.com>
+# libfprint with the goodixtls driver for the Goodix 27c6:55a4 reader (ThinkPad E14 Gen 1).
+# Same sources as rpm/ and deb/: TheWeirdDev/libfprint 55b4-experimental @ c1937b9 +
+# jith/goodix-55a4-fingerprint patches 0001/0002/0008/0010/0011 + our 0012.
+# Builds offline from the files next to this PKGBUILD (arch/build.sh copies them in).
+
+pkgname=libfprint-goodixtls-55a4
+_commit=c1937b9
+pkgver=1.94.6.c1937b9
+pkgrel=1
+pkgdesc="libfprint for the Goodix 27c6:55a4 fingerprint reader (ThinkPad E14 Gen 1) on Lenovo firmware 10062; replaces libfprint"
+arch=('x86_64')
+url="https://github.com/f360c4/fingerprint-goodix-55a4-lenovo-fedora"
+license=('LGPL-2.1-or-later')
+depends=('glib2' 'libgusb' 'openssl' 'pixman' 'nss' 'libgudev' 'opencv')
+makedepends=('meson' 'ninja' 'pkgconf' 'gobject-introspection' 'gtk-doc' 'patch')
+optdepends=('fprintd: D-Bus daemon used by PAM and desktop settings')
+# drop-in replacement for libfprint and for the two community package names
+provides=('libfprint' 'libfprint-2.so=2-64' 'libfprint-goodixtls-55x4' 'libfprint-goodixtls-55x4-fixed')
+conflicts=('libfprint' 'libfprint-goodixtls-55x4' 'libfprint-goodixtls-55x4-fixed')
+source=("libfprint-TheWeirdDev-55b4-experimental-${_commit}.tar.xz"
+        "0001-goodix55x4-host-side-finger-detect.patch"
+        "0002-sigfm-opencv-pkgconfig-fallback.patch"
+        "0008-sigfm-tuned-matcher-clahe-mutual.patch"
+        "0010-goodix55x4-windows-fdt-flow-10062.patch"
+        "0011-image-device-clean-enroll-completion.patch"
+        "0012-sigfm-optional-doctest.patch")
+sha256sums=('56065bce8636147abe7f0a8da2019c815be9d92f297efa9381a0096d3d3a47c5'
+            '3a1dc72a0981a0894975c50c51bbdd97023d449d4fdaa70d523703c5db928ee8'
+            'a57b8923143b1dfaa28efdfb641c547e5b86c736d65d0448416ceec6af7e3e4d'
+            '9f4e685e9074a78c7ac703a7153edd7b60811ca414e6d1fb454e859dab3cf759'
+            '780b4b858b50a30989f6db4bb4672ac28cb83d1766a0bec79416df354581566f'
+            '5907587ef5fd01bf14a1cdf5f152f759ccf4ef46930d8e896a723ff144491d99'
+            'SKIP')
+
+prepare() {
+  cd "${srcdir}/libfprint-goodixtls-55x4"
+  for p in 0001 0002 0008 0010 0011 0012; do
+    patch -Np1 -i "${srcdir}"/${p}-*.patch
+  done
+}
+
+build() {
+  arch-meson "${srcdir}/libfprint-goodixtls-55x4" build \
+    -D doc=false -D gtk-examples=false -D installed-tests=false \
+    -D udev_rules=disabled -D udev_hwdb=disabled
+  meson compile -C build
+}
+
+package() {
+  meson install -C build --destdir "${pkgdir}"
+  install -Dm644 "${srcdir}/libfprint-goodixtls-55x4/COPYING" "${pkgdir}/usr/share/licenses/${pkgname}/COPYING"
+}
