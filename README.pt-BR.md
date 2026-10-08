@@ -138,6 +138,24 @@ sudo authselect enable-feature with-fingerprint
 Isso adiciona `pam_fprintd.so` como **`sufficient`**: a senha continua funcionando sempre
 (Enter sem dedo → cai na senha). Vale pra `sudo`, desbloqueio do KDE e também pro login do SDDM.
 
+## E se eu trocar de distro (Omarchy / Arch)?
+
+A chave de pareamento fica **no sensor**, não no sistema. Depois do passo 3, qualquer distro
+com o driver funciona, sem parear de novo. No Omarchy, CachyOS ou Arch use direto o pacote do
+jith (é pra pacman):
+
+```bash
+git clone https://github.com/jith/goodix-55a4-fingerprint
+cd goodix-55a4-fingerprint
+./scripts/install.sh      # instala o libfprint patcheado (pacote pronto ou compila); não flasha nada
+./scripts/enroll.sh       # cadastra a digital
+./scripts/enable-sudo.sh  # PAM do sudo (no Omarchy, o próprio setup de fingerprint dele também serve)
+```
+
+**Pule** o `firmware/flash-firmware.sh` dele: seu sensor já está no 10062 e já pareado.
+Se por acaso aparecer `Invalid device PSK`, é porque algo re-pareou o sensor (Windows);
+aí rode o `tools/pair_psk.py` deste repositório — é só Python e funciona em qualquer distro.
+
 ## Depois de updates do sistema
 
 ```bash

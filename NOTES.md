@@ -432,3 +432,10 @@ Nome do repo escolhido pelo Luiz: `fingerprint-goodix-55a4-lenovo-fedora`.
      — o PR #3 já corrige; comentar lá confirmando é suficiente;
   3. COPR (opcional, futuro).
 - Limpeza opcional na máquina: `sudo tools/debug-off.sh` (tira o debug do fprintd do journal).
+
+### Contribuição upstream postada (2026-10-08 ~02:30, com OK do Luiz)
+
+- jith/goodix-55a4-fingerprint#1: https://github.com/jith/goodix-55a4-fingerprint/issues/1#issuecomment-6060189736
+- TheWeirdDev/libfprint PR #3: https://github.com/TheWeirdDev/libfprint/pull/3#issuecomment-6060190177
+- README.pt-BR ganhou seção "Omarchy / Arch": usar `scripts/install.sh` + `enroll.sh` do jith,
+  pular o flash; sensor já pareado. COPR descartado (Release no GitHub cumpre o papel).
