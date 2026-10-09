@@ -10,3 +10,7 @@ deb/_work/
 deb/out/
 arch/_work/
 arch/out/*.pkg.tar.zst
+selinux/*.fc
+selinux/*.if
+selinux/*.pp
+selinux/tmp/
