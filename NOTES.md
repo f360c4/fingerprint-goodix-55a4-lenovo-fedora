@@ -491,3 +491,12 @@ Nada de firmware/flash no pacote nem no instalador.
 - Luiz relata alerta SELinux a cada toque (fprintd é religado via D-Bus → OpenCV relê
   nr_hugepages). Passei: `sudo dnf install selinux-policy-devel && sudo selinux/install.sh`
   (dontaudit) + `sudo tools/debug-off.sh`.
+
+## 2026-10-09 — resposta do m1q na issue #1 do jith
+
+m1q (ThinkBook 15-IIL, 10052, Omarchy) confirmou: dois firmwares, mesmo IAP 10027, só pareamento;
+blob de config idêntico entre os pacotes Lenovo 10052/10062; uma semana estável; apoia nosso
+helper como PR upstream (jith ainda não respondeu). Aviso prático: `omarchy-setup-security-fingerprint`
+reinstala `libfprint-git` por cima do driver → adicionado aos READMEs e ao `arch/enable-sudo.sh`.
+LED do botão: comando 0xC6 aceito mas sem efeito; piscar vem do EC/BIOS (não é nosso problema).
+Nada postado por nós; PR aguarda o jith.

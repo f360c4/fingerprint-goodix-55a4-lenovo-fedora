@@ -4,8 +4,8 @@
 # Short timeout so a missed touch does not block the password prompt for long.
 #   arch/enable-sudo.sh             enable (timeout 10 s, 2 tries)
 #   arch/enable-sudo.sh --disable   remove again
-# Omarchy users: Omarchy's own fingerprint setup (omarchy-setup-fingerprint) does
-# the same for sudo/login and can be used instead.
+# Omarchy users: do NOT run omarchy-setup-security-fingerprint after installing this
+# driver; it reinstalls libfprint-git over it. Use this script instead.
 set -u
 f=/etc/pam.d/sudo
 line="auth sufficient pam_fprintd.so max-tries=${MAX_TRIES:-2} timeout=${TIMEOUT:-10}"

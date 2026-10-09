@@ -150,8 +150,12 @@ cd fingerprint-goodix-55a4-lenovo-fedora
 # opcional: baixe o .pkg.tar.zst de Releases pra arch/out/ pra não compilar
 arch/install.sh          # instala o driver (pré-compilado se as libs batem, senão makepkg) + hook do pacman
 tools/enroll.sh          # cadastra a digital
-arch/enable-sudo.sh      # sudo por digital (no Omarchy, o setup de fingerprint dele também serve)
+arch/enable-sudo.sh      # sudo por digital — no Omarchy, use ESTE, não o setup dele (veja abaixo)
 ```
+
+> **Omarchy:** não rode `omarchy-setup-security-fingerprint` depois de instalar o driver — ele
+> reinstala o `libfprint-git` por cima e o leitor volta a não funcionar. Habilite o PAM à mão
+> (`arch/enable-sudo.sh`). Relato de um usuário Omarchy na issue #1 do jith.
 
 O pacote substitui o `libfprint` do Arch e também os nomes `libfprint-goodixtls-55x4` /
 `libfprint-goodixtls-55x4-fixed` (AUR e jith), então troca limpa se você já tinha um deles.

@@ -51,6 +51,8 @@ writes and why it is low-risk; `NOTES.md` has the full investigation with eviden
 arch/install.sh        # prebuilt .pkg.tar.zst from arch/out (download from Releases) if its sonames match, else makepkg
 tools/enroll.sh && arch/enable-sudo.sh
 ```
+**Omarchy:** do not run `omarchy-setup-security-fingerprint` after installing the driver — it reinstalls
+`libfprint-git` over it. Enable PAM by hand (`arch/enable-sudo.sh`); reported by an Omarchy user in jith's issue #1.
 Replaces `libfprint` and the AUR/jith package names (`libfprint-goodixtls-55x4[-fixed]`). A pacman
 hook warns when a rolling update (opencv/glib2/openssl) breaks the prebuilt library; rebuild with
 `arch/install.sh --source`. The reader keeps its Linux pairing across distro reinstalls.
